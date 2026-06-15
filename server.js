@@ -6,63 +6,51 @@ app.use(cors());
 
 app.get('/grapp', async (req, res) => {
     try {
-        console.log("--- ZAČÍNÁM DOTAZ NA SŽ ---");
-        
-        // 1. Tváříme se jako opravdový prohlížeč (jinak nás firewall SŽ může zablokovat)
         const initResponse = await fetch('https://grapp.spravazeleznic.cz/', {
             headers: {
                 'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
                 'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8',
                 'Accept-Language': 'cs,en-US;q=0.7,en;q=0.3',
-                'Connection': 'keep-alive'
             }
         });
 
-        if (!initResponse.ok) {
-            throw new Error(`Hlavní stránka SŽ vrátila chybu: ${initResponse.status}`);
-        }
-
+        if (!initResponse.ok) throw new Error(`Hlavní stránka SŽ vrátila chybu: ${initResponse.status}`);
         const initHtml = await initResponse.text();
 
-        // 2. Extrakce Session Cookie (Node 18+ má getSetCookie, jinak fallback)
+        // 1. Extrakce Session Cookie
         let sessionId = '';
         if (initResponse.headers.getSetCookie) {
-            const cookies = initResponse.headers.getSetCookie();
-            for (const cookie of cookies) {
-                if (cookie.includes('ASP.NET_SessionId')) {
-                    sessionId = cookie.split(';')[0].split('=')[1];
-                }
+            for (const cookie of initResponse.headers.getSetCookie()) {
+                if (cookie.includes('ASP.NET_SessionId')) sessionId = cookie.split(';')[0].split('=')[1];
             }
         }
-        
-        // Fallback pro jistotu
         if (!sessionId) {
             const setCookieHeader = initResponse.headers.get('set-cookie') || '';
             const sessionMatch = setCookieHeader.match(/ASP\.NET_SessionId=([^;]+)/);
             if (sessionMatch) sessionId = sessionMatch[1];
         }
 
-        // 3. Extrakce Tokenu z HTML (více benevolentní regex)
-        // Hledáme např. "GetTrainsWithFilter/CDBD03CC..."
-        const tokenMatch = initHtml.match(/GetTrainsWithFilter\/([A-Za-z0-9]+)/i);
-        const token = tokenMatch ? tokenMatch[1] : '';
+        // 2. Extrakce Tokenu - ignorujeme kontext a hledáme jakýkoliv 64-místný hexadecimální kód (A-F, 0-9)
+        let token = '';
+        const hexMatches = initHtml.match(/[a-f0-9]{64}/gi);
+        if (hexMatches && hexMatches.length > 0) {
+            token = hexMatches[0]; // Bereme hned ten první nalezený
+        }
 
-        // DETAILNÍ LOGOVÁNÍ PRO NÁS
-        console.log(`Získaný Session ID: ${sessionId ? "OK (" + sessionId.substring(0, 5) + "...)" : "CHYBÍ!"}`);
-        console.log(`Získaný Token:      ${token ? "OK (" + token.substring(0, 5) + "...)" : "CHYBÍ!"}`);
-
-        // Pokud něco chybí, vyhodíme detailnější chybu
+        // Ošetření chyby - pokud stále něco chybí, vrátíme si kousek zdrojového kódu k prozkoumání
         if (!token || !sessionId) {
             return res.status(500).json({ 
                 error: 'Nepodařilo se získat token nebo session z GRAPPu.',
                 debug: {
                     hasSession: !!sessionId,
-                    hasToken: !!token
+                    hasToken: !!token,
+                    // Zobrazíme prvních 800 znaků z HTML, ať vidíme, co nám server SŽ vlastně vrátil
+                    htmlSnippet: initHtml.substring(0, 800) 
                 }
             });
         }
 
-        // 4. Pokud máme vše, jdeme pro data
+        // 3. --- ODESLÁNÍ DOTAZU NA DATA S NALEZENÝM TOKENEM A COOKIE ---
         const targetUrl = `https://grapp.spravazeleznic.cz/post/trains/GetTrainsWithFilter/${token}`;
         
         const payload = {
@@ -89,22 +77,19 @@ app.get('/grapp', async (req, res) => {
         });
 
         if (!dataResponse.ok) {
-            const errorText = await dataResponse.text();
-            throw new Error(`Data SŽ vrátila chybu ${dataResponse.status}: ${errorText.substring(0, 100)}`);
+            throw new Error(`Data SŽ vrátila HTTP chybu: ${dataResponse.status}`);
         }
         
         const data = await dataResponse.json();
         
-        // Zkontrolujeme, jestli nám SŽ nevrací tu jejich "fake" chybu v rámci JSONu
+        // Občas SŽ vrátí "Status 200 OK", ale uvnitř JSONu je chybová zpráva. Ošetříme to:
         if (data && data.Status && data.Status.includes("Pokus o neautorizovaný přístup")) {
-             throw new Error("SŽ odmítla přístup i přes platný token. Je možné, že blokuje IP adresy Renderu.");
+             throw new Error("SŽ nás vykopla i přes platný token (ochrana Render IP).");
         }
 
-        console.log(`--- ÚSPĚŠNĚ STAŽENO VOZIDEL: ${data.Trains ? data.Trains.length : 0} ---`);
         res.json(data);
 
     } catch (error) {
-        console.error("Kritická chyba v můstku:", error.message);
         res.status(500).json({ error: error.message });
     }
 });
