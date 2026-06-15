@@ -109,5 +109,31 @@ app.get('/grapp/route', async (req, res) => {
     }
 });
 
+// --- 4. NOVÝ ENDPOINT PRO JÍZDNÍ ŘÁD VLAKU ---
+app.get('/grapp/timetable', async (req, res) => {
+    try {
+        const { id, token, session } = req.query;
+        if (!id || !token || !session) return res.status(400).send("Chybí parametry");
+
+        const targetUrl = `https://grapp.spravazeleznic.cz/OneTrain/RouteInfo/${token}?trainId=${id}&_=${Date.now()}`;
+        
+        const ttResponse = await fetch(targetUrl, {
+            headers: {
+                'Cookie': `ASP.NET_SessionId=${session}; GRAPP_TechnicalCookieName=1`,
+                'X-Requested-With': 'XMLHttpRequest',
+                'Referer': 'https://grapp.spravazeleznic.cz/'
+            }
+        });
+
+        if (!ttResponse.ok) throw new Error("API SŽ selhalo");
+        
+        const html = await ttResponse.text();
+        res.send(html);
+
+    } catch (err) {
+        res.status(500).send("Chyba při stahování jízdního řádu");
+    }
+});
+
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => console.log(`GRAPP Můstek naslouchá na portu ${PORT}`));
