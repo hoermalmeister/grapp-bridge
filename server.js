@@ -4,20 +4,19 @@ import cors from 'cors';
 const app = express();
 app.use(cors());
 
+// --- 1. ENDPOINT PRO HLAVNÍ DATA ---
 app.get('/grapp', async (req, res) => {
     try {
         const initResponse = await fetch('https://grapp.spravazeleznic.cz/', {
             headers: {
-                'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
-                'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8',
-                'Accept-Language': 'cs,en-US;q=0.7,en;q=0.3',
+                'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36',
+                'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8',
             }
         });
 
-        if (!initResponse.ok) throw new Error(`Hlavní stránka SŽ vrátila chybu: ${initResponse.status}`);
+        if (!initResponse.ok) throw new Error(`Chyba: ${initResponse.status}`);
         const initHtml = await initResponse.text();
 
-        // 1. Extrakce Session Cookie
         let sessionId = '';
         if (initResponse.headers.getSetCookie) {
             for (const cookie of initResponse.headers.getSetCookie()) {
@@ -30,38 +29,14 @@ app.get('/grapp', async (req, res) => {
             if (sessionMatch) sessionId = sessionMatch[1];
         }
 
-        // 2. Extrakce Tokenu - ignorujeme kontext a hledáme jakýkoliv 64-místný hexadecimální kód (A-F, 0-9)
         let token = '';
         const hexMatches = initHtml.match(/[a-f0-9]{64}/gi);
-        if (hexMatches && hexMatches.length > 0) {
-            token = hexMatches[0]; // Bereme hned ten první nalezený
-        }
+        if (hexMatches && hexMatches.length > 0) token = hexMatches[0];
 
-        // Ošetření chyby - pokud stále něco chybí, vrátíme si kousek zdrojového kódu k prozkoumání
-        if (!token || !sessionId) {
-            return res.status(500).json({ 
-                error: 'Nepodařilo se získat token nebo session z GRAPPu.',
-                debug: {
-                    hasSession: !!sessionId,
-                    hasToken: !!token,
-                    // Zobrazíme prvních 800 znaků z HTML, ať vidíme, co nám server SŽ vlastně vrátil
-                    htmlSnippet: initHtml.substring(0, 800) 
-                }
-            });
-        }
+        if (!token || !sessionId) throw new Error('Nepodařilo se získat token nebo session z GRAPPu.');
 
-        // 3. --- ODESLÁNÍ DOTAZU NA DATA S NALEZENÝM TOKENEM A COOKIE ---
         const targetUrl = `https://grapp.spravazeleznic.cz/post/trains/GetTrainsWithFilter/${token}`;
-        
-        const payload = {
-            "CarrierCode":["991919","992230","992719","991687","993030","990010","993188","993246","993386","993295","991950","992693","991638","991976","993089","993162","991257","992636","546001","991935","991562","993444","993303","991026","991125","993345","992644","992842","991927","993170","991810","994376","993337","993204","542005","993436","f_o_r_e_i_g_n"],
-            "PublicKindOfTrain":["LE","Ex","Sp","rj","TL","EC","SC","Os","TLX","IC","EN","R","RJ","NJ","LET","ES"],
-            "FreightKindOfTrain":[],"KindOfExtraordinary":[],"TrainRunning":false,"PMD":false,"TrainNoChange":0,
-            "BckTrain":false,"TrainOutOfOrder":false,"Delay":["0","30","5","60","15","61"],"DelayMin":-99999,
-            "DelayMax":-99999,"SearchByTrainNumber":true,"SearchByTrainName":true,"SearchByTRID":false,
-            "SearchByVehicleNumber":false,"SearchTextType":"0","SearchPhrase":"","SelectedTrain":-1,
-            "RequestedBy":-1,"OrderedBy":"","UnRestriction":true,"PlRestriction":true,"GPS":null,"ETCS":false
-        };
+        const payload = {"CarrierCode":["991919","992230","992719","991687","993030","990010","993188","993246","993386","993295","991950","992693","991638","991976","993089","993162","991257","992636","546001","991935","991562","993444","993303","991026","991125","993345","992644","992842","991927","993170","991810","994376","993337","993204","542005","993436","f_o_r_e_i_g_n"],"PublicKindOfTrain":["LE","Ex","Sp","rj","TL","EC","SC","Os","TLX","IC","EN","R","RJ","NJ","LET","ES"],"FreightKindOfTrain":[],"KindOfExtraordinary":[],"TrainRunning":false,"PMD":false,"TrainNoChange":0,"BckTrain":false,"TrainOutOfOrder":false,"Delay":["0","30","5","60","15","61"],"DelayMin":-99999,"DelayMax":-99999,"SearchByTrainNumber":true,"SearchByTrainName":true,"SearchByTRID":false,"SearchByVehicleNumber":false,"SearchTextType":"0","SearchPhrase":"","SelectedTrain":-1,"RequestedBy":-1,"OrderedBy":"","UnRestriction":true,"PlRestriction":true,"GPS":null,"ETCS":false};
 
         const dataResponse = await fetch(targetUrl, {
             method: 'POST',
@@ -70,34 +45,43 @@ app.get('/grapp', async (req, res) => {
                 'Cookie': `ASP.NET_SessionId=${sessionId}; GRAPP_TechnicalCookieName=1`,
                 'X-Requested-With': 'XMLHttpRequest',
                 'Origin': 'https://grapp.spravazeleznic.cz',
-                'Referer': 'https://grapp.spravazeleznic.cz/',
-                'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36'
+                'Referer': 'https://grapp.spravazeleznic.cz/'
             },
             body: JSON.stringify(payload)
         });
 
-        if (!dataResponse.ok) {
-            throw new Error(`Data SŽ vrátila HTTP chybu: ${dataResponse.status}`);
-        }
-        
         const data = await dataResponse.json();
         
-        if (data && data.Status && data.Status.includes("Pokus o neautorizovaný přístup")) {
-             throw new Error("SŽ nás vykopla i přes platný token.");
-        }
+        // Zde pošleme frontendu vše, co potřebuje k dalšímu dotazování
+        res.json({ Token: token, SessionId: sessionId, Data: data });
 
-        // NOVÉ: Vracíme objekt obsahující jak Token, tak Data
-        res.json({
-            Token: token,
-            Data: data
+    } catch (error) { res.status(500).json({ error: error.message }); }
+});
+
+// --- 2. NOVÝ ENDPOINT PRO STAŽENÍ DETAILŮ ---
+app.get('/grapp/detail', async (req, res) => {
+    try {
+        const { id, token, session } = req.query;
+        if (!id || !token || !session) return res.status(400).send("Chybí parametry");
+
+        const targetUrl = `https://grapp.spravazeleznic.cz/OneTrain/MainInfo/${token}?trainId=${id}&_=${Date.now()}`;
+        
+        // Můstek (Render) připojí správné sušenky, takže nás SŽ nevykopne
+        const detailResponse = await fetch(targetUrl, {
+            headers: {
+                'Cookie': `ASP.NET_SessionId=${session}; GRAPP_TechnicalCookieName=1`,
+                'X-Requested-With': 'XMLHttpRequest',
+                'Referer': 'https://grapp.spravazeleznic.cz/'
+            }
         });
 
-    } catch (error) {
-        res.status(500).json({ error: error.message });
+        const html = await detailResponse.text();
+        res.send(html);
+
+    } catch (err) {
+        res.status(500).send("Chyba při stahování detailu");
     }
 });
 
 const PORT = process.env.PORT || 3000;
-app.listen(PORT, () => {
-    console.log(`GRAPP Můstek naslouchá na portu ${PORT}`);
-});
+app.listen(PORT, () => console.log(`GRAPP Můstek naslouchá na portu ${PORT}`));
