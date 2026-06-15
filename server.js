@@ -83,5 +83,31 @@ app.get('/grapp/detail', async (req, res) => {
     }
 });
 
+// --- 3. NOVÝ ENDPOINT PRO TRASU VLAKU ---
+app.get('/grapp/route', async (req, res) => {
+    try {
+        const { id, token, session } = req.query;
+        if (!id || !token || !session) return res.status(400).send("Chybí parametry");
+
+        const targetUrl = `https://grapp.spravazeleznic.cz/get/trains/train/${token}?trainId=${id}&_=${Date.now()}`;
+        
+        const routeResponse = await fetch(targetUrl, {
+            headers: {
+                'Cookie': `ASP.NET_SessionId=${session}; GRAPP_TechnicalCookieName=1`,
+                'X-Requested-With': 'XMLHttpRequest',
+                'Referer': 'https://grapp.spravazeleznic.cz/'
+            }
+        });
+
+        if (!routeResponse.ok) throw new Error("API SŽ selhalo");
+        
+        const data = await routeResponse.json();
+        res.json(data);
+
+    } catch (err) {
+        res.status(500).json({ error: "Chyba při stahování trasy" });
+    }
+});
+
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => console.log(`GRAPP Můstek naslouchá na portu ${PORT}`));
