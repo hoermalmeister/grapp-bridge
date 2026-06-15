@@ -82,12 +82,15 @@ app.get('/grapp', async (req, res) => {
         
         const data = await dataResponse.json();
         
-        // Občas SŽ vrátí "Status 200 OK", ale uvnitř JSONu je chybová zpráva. Ošetříme to:
         if (data && data.Status && data.Status.includes("Pokus o neautorizovaný přístup")) {
-             throw new Error("SŽ nás vykopla i přes platný token (ochrana Render IP).");
+             throw new Error("SŽ nás vykopla i přes platný token.");
         }
 
-        res.json(data);
+        // NOVÉ: Vracíme objekt obsahující jak Token, tak Data
+        res.json({
+            Token: token,
+            Data: data
+        });
 
     } catch (error) {
         res.status(500).json({ error: error.message });
