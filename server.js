@@ -233,29 +233,42 @@ app.get('/pid/timetable', async (req, res) => {
     }
 });
 
+// --- 9. ENDPOINT PRO IDS JMK (S dynamickým tokenem a ochranou proti pádům) ---
 app.get('/idsjmk', async (req, res) => {
     try {
-        // 1. Vygenerujeme náhodné UUID (napr. 123e4567-e89b-12d3-a456-426614174000)
-        const uuid = crypto.randomUUID();
-        // 2. Pridáme prefix |WEB| a zakódujeme do Base64, presne ako to IDS JMK vyžaduje
+        // 1. Spolehlivý generátor UUID nezávislý na verzi Node.js (nemusíš importovat crypto)
+        const uuid = 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
+            const r = Math.random() * 16 | 0, v = c === 'x' ? r : (r & 0x3 | 0x8);
+            return v.toString(16);
+        });
+        
+        // 2. Složení tokenu
         const rawToken = `|WEB|${uuid}`;
         const accessToken = Buffer.from(rawToken).toString('base64');
 
+        // 3. Odeslání dotazu s kompletními hlavičkami (včetně User-Agent proti blokaci)
         const response = await fetch('https://mapa.idsjmk.cz/api/vehicles', {
             headers: {
-                'Accept': '*/*',
+                'Accept': 'application/json, text/plain, */*',
                 'Origin': 'https://mapa.idsjmk.cz',
                 'Referer': 'https://mapa.idsjmk.cz/',
-                'x-access-token': accessToken // <--- POUŽITIE NÁŠHO ČERSTVÉHO KÓDU
+                'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
+                'x-access-token': accessToken 
             }
         });
 
-        if (!response.ok) throw new Error(`IDS JMK API zlyhalo: ${response.status}`);
+        // 4. Pokud server IDS JMK vrátí chybu, zachytíme ji
+        if (!response.ok) {
+            const text = await response.text();
+            throw new Error(`API JMK zamítlo přístup: ${response.status} - ${text}`);
+        }
+        
         const data = await response.json(); 
         res.json(data);
     } catch (err) {
-        console.error("Chyba pri sťahovaní IDS JMK:", err);
-        res.status(500).send("Chyba pri sťahovaní dát IDS JMK");
+        // Vypíše chybu do logů Renderu a pošle ji jako text na frontend
+        console.error("Chyba IDS JMK Můstku:", err.message);
+        res.status(500).send(err.message);
     }
 });
 
