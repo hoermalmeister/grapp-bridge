@@ -385,25 +385,22 @@ app.get('/idsjmk-debug', (req, res) => {
     });
 });
 
-// --- 9. ENDPOINT PRO IDS JMK (S Auto-Healingem) ---
+// --- 9. ENDPOINT PRO IDS JMK (S auto-healingem a GTFS názvy) ---
 app.get('/idsjmk', async (req, res) => {
     try {
-        // Pokusíme se načíst data s naším aktuálně uloženým tokenem
         let response = await fetch('https://mapa.idsjmk.cz/api/vehicles', {
             headers: {
                 'accept': 'application/json, text/plain, */*',
                 'Origin': 'https://mapa.idsjmk.cz',
                 'Referer': 'https://mapa.idsjmk.cz/',
-                'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36',
+                'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64)',
                 'x-access-token': jmkToken
             }
         });
 
-        // Pokud nás server vyhodí kvůli starému tokenu (401 nebo 403), spustíme opravu
         if (response.status === 401 || response.status === 403) {
             const refreshed = await refreshJmkToken();
             if (refreshed) {
-                // Token byl úspěšně nalezen a obnoven! Zkusíme dotaz na API poslat znovu
                 response = await fetch('https://mapa.idsjmk.cz/api/vehicles', {
                     headers: {
                         'accept': 'application/json, text/plain, */*',
@@ -422,6 +419,16 @@ app.get('/idsjmk', async (req, res) => {
         }
         
         const data = await response.json(); 
+        
+        // Projdeme všechna vozidla a podle LastStopID jim přidáme LastStopName
+        if (data && data.Vehicles) {
+            data.Vehicles.forEach(v => {
+                if (v.LastStopID && jmkStops[v.LastStopID]) {
+                    v.LastStopName = jmkStops[v.LastStopID];
+                }
+            });
+        }
+
         res.json(data);
     } catch (err) {
         console.error("Chyba IDS JMK Můstku:", err.message);
