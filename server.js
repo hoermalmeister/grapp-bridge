@@ -1,5 +1,7 @@
 import express from 'express';
 import cors from 'cors';
+import fetch from 'node-fetch';
+import crypto from 'crypto';
 
 const app = express();
 app.use(cors());
@@ -229,6 +231,33 @@ app.get('/pid/timetable', async (req, res) => {
         res.json(data);
     } catch (err) {
         res.status(500).send("Chyba při stahování PID jízdního řádu");
+    }
+});
+
+// --- 9. ENDPOINT PRO IDS JMK (S dynamickým tokenem) ---
+app.get('/idsjmk', async (req, res) => {
+    try {
+        // 1. Vygenerujeme náhodné UUID (např. 123e4567-e89b-12d3-a456-426614174000)
+        const uuid = crypto.randomUUID();
+        // 2. Přidáme prefix |WEB| a zakódujeme do Base64, přesně jak to IDS JMK vyžaduje
+        const rawToken = `|WEB|${uuid}`;
+        const accessToken = Buffer.from(rawToken).toString('base64');
+
+        const response = await fetch('https://mapa.idsjmk.cz/api/vehicles', {
+            headers: {
+                'Accept': '*/*',
+                'Origin': 'https://mapa.idsjmk.cz',
+                'Referer': 'https://mapa.idsjmk.cz/',
+                'x-access-token': accessToken // <--- POUŽITÍ NAŠEHO ČERSTVÉHO KÓDU
+            }
+        });
+
+        if (!response.ok) throw new Error(`IDS JMK API selhalo: ${response.status}`);
+        const data = await response.json(); 
+        res.json(data);
+    } catch (err) {
+        console.error("Chyba při stahování IDS JMK:", err);
+        res.status(500).send("Chyba při stahování dat IDS JMK");
     }
 });
 
