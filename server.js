@@ -290,6 +290,101 @@ async function refreshJmkToken() {
     }
 }
 
+let jmkStops = {};
+let jmkGtfsStatus = "Server nastartoval, čekám na první stažení..."; // <--- NOVÉ PRO REVIZI
+
+// Robustní funkce pro čtení CSV řádků
+function parseCsvLine(text) {
+    let ret = [], current = '', inQuotes = false;
+    for (let i = 0; i < text.length; i++) {
+        let char = text[i];
+        if (char === '"' && text[i+1] === '"') { current += '"'; i++; } 
+        else if (char === '"') { inQuotes = !inQuotes; }
+        else if (char === ',' && !inQuotes) { ret.push(current.trim()); current = ''; }
+        else { current += char; }
+    }
+    ret.push(current.trim());
+    return ret;
+}
+
+async function updateJmkGtfs() {
+    try {
+        jmkGtfsStatus = "Právě stahuji GTFS archiv z kordis-jmk.cz...";
+        const response = await fetch('https://kordis-jmk.cz/gtfs/gtfs.zip');
+        if (!response.ok) throw new Error(`Nelze stáhnout ZIP, HTTP status: ${response.status}`);
+        
+        const buffer = await response.arrayBuffer();
+        const zip = new AdmZip(Buffer.from(buffer));
+        const stopsEntry = zip.getEntries().find(e => e.entryName === 'stops.txt');
+        
+        if (!stopsEntry) throw new Error("Soubor stops.txt v ZIP archivu neexistuje!");
+
+        const content = zip.readAsText(stopsEntry, 'utf8');
+        const lines = content.split('\n');
+        
+        let firstLine = lines[0].trim();
+        if (firstLine.charCodeAt(0) === 0xFEFF) {
+            firstLine = firstLine.slice(1);
+        }
+        
+        const headers = parseCsvLine(firstLine);
+        const idIdx = headers.findIndex(h => h.includes('stop_id'));
+        const nameIdx = headers.findIndex(h => h.includes('stop_name'));
+        const typeIdx = headers.findIndex(h => h.includes('location_type')); 
+
+        if (idIdx === -1 || nameIdx === -1) {
+            throw new Error(`Nenalezeny klíčové sloupce. Nalezené hlavičky: ${headers.join(', ')}`);
+        }
+
+        let newStopsMap = {};
+        for(let i = 1; i < lines.length; i++) {
+            if(!lines[i]) continue;
+            const cols = parseCsvLine(lines[i].trim());
+            const stop_id = cols[idIdx];
+            const stop_name = cols[nameIdx];
+            const loc_type = typeIdx !== -1 ? cols[typeIdx] : null;
+
+            if(!stop_id || !stop_name) continue;
+
+            const idMatch = stop_id.match(/\d+/);
+            if (idMatch) {
+                const numericId = idMatch[0];
+                const isParent = loc_type === '1';
+
+                if (isParent || !newStopsMap[numericId]) {
+                    newStopsMap[numericId] = stop_name.replace(/"/g, '');
+                }
+            }
+        }
+        
+        jmkStops = newStopsMap;
+        // Uložíme úspěšný status s časem ražby
+        jmkGtfsStatus = `Úspěch! Slovník vygenerován v ${new Date().toLocaleTimeString()}. Celkem zastávek: ${Object.keys(jmkStops).length}`;
+        console.log(jmkGtfsStatus);
+    } catch (err) {
+        // Pokud to spadne, uložíme přesné znění chyby pro diagnostiku
+        jmkGtfsStatus = `CHYBA PŘI PARSOVÁNÍ: ${err.message}`;
+        console.error(jmkGtfsStatus);
+    }
+}
+
+// Spustíme hned po zapnutí serveru a pak každých 24 hodin
+updateJmkGtfs();
+setInterval(updateJmkGtfs, 24 * 60 * 60 * 1000);
+
+
+// =========================================================
+// DIAGNOSTICKÝ ENDPOINT
+// =========================================================
+app.get('/idsjmk-debug', (req, res) => {
+    res.json({
+        aktualni_status: jmkGtfsStatus,
+        celkovy_pocet_zastavek: Object.keys(jmkStops).length,
+        test_vyhledani_id_17423: jmkStops['17423'] || "ID 17423 ve slovníku chybí!",
+        ukazka_prvnich_50_zastavek: Object.entries(jmkStops).slice(0, 50)
+    });
+});
+
 // --- 9. ENDPOINT PRO IDS JMK (S Auto-Healingem) ---
 app.get('/idsjmk', async (req, res) => {
     try {
@@ -333,95 +428,6 @@ app.get('/idsjmk', async (req, res) => {
         res.status(500).send(err.message);
     }
 });
-
-// Zde budeme udržovat náš rozklíčovaný slovník zastávek { "1384": "Mifkova", ... }
-let jmkStops = {};
-
-// Robustní funkce pro čtení CSV řádků
-function parseCsvLine(text) {
-    let ret = [], current = '', inQuotes = false;
-    for (let i = 0; i < text.length; i++) {
-        let char = text[i];
-        if (char === '"' && text[i+1] === '"') { current += '"'; i++; } 
-        else if (char === '"') { inQuotes = !inQuotes; }
-        else if (char === ',' && !inQuotes) { ret.push(current); current = ''; }
-        else { current += char; }
-    }
-    ret.push(current.trim());
-    return ret;
-}
-
-// Funkce, která stáhne GTFS a vyextrahuje názvy parent zastávek
-async function updateJmkGtfs() {
-    try {
-        console.log("Stahuji a rozbaluji nejnovější GTFS JMK...");
-        const response = await fetch('https://kordis-jmk.cz/gtfs/gtfs.zip');
-        if (!response.ok) throw new Error("Nelze stáhnout GTFS archiv");
-        const buffer = await response.arrayBuffer();
-        
-        // Rozbalení v paměti RAM
-        const zip = new AdmZip(Buffer.from(buffer));
-        const stopsEntry = zip.getEntries().find(e => e.entryName === 'stops.txt');
-        
-        if (stopsEntry) {
-            const content = zip.readAsText(stopsEntry, 'utf8');
-            const lines = content.split('\n');
-            
-            // Ochrana proti neviditelnému BOM znaku na začátku souboru!
-            let firstLine = lines[0].trim();
-            if (firstLine.charCodeAt(0) === 0xFEFF) {
-                firstLine = firstLine.slice(1);
-            }
-            
-            const headers = parseCsvLine(firstLine);
-            
-            // Místo indexOf použijeme includes (imunní proti neviditelným mezerám)
-            const idIdx = headers.findIndex(h => h.includes('stop_id'));
-            const nameIdx = headers.findIndex(h => h.includes('stop_name'));
-            const typeIdx = headers.findIndex(h => h.includes('location_type')); 
-
-            if (idIdx === -1 || nameIdx === -1) {
-                console.error("Kritická chyba: V GTFS nebyly nalezeny sloupce stop_id nebo stop_name!");
-                return;
-            }
-
-            let newStopsMap = {};
-
-            for(let i = 1; i < lines.length; i++) {
-                if(!lines[i]) continue;
-                const cols = parseCsvLine(lines[i].trim());
-                
-                const stop_id = cols[idIdx];
-                const stop_name = cols[nameIdx];
-                const loc_type = typeIdx !== -1 ? cols[typeIdx] : null;
-
-                if(!stop_id || !stop_name) continue;
-
-                // Neprůstřelný Regex: Vytáhne první čisté číslo, nehledě na písmena okolo
-                // např. "U17423" -> "17423", nebo "U1384N562" -> "1384"
-                const idMatch = stop_id.match(/\d+/);
-                if (idMatch) {
-                    const numericId = idMatch[0];
-                    const isParent = loc_type === '1';
-
-                    // Dáme absolutní přednost "parent_station"
-                    if (isParent || !newStopsMap[numericId]) {
-                        newStopsMap[numericId] = stop_name.replace(/"/g, '');
-                    }
-                }
-            }
-            
-            jmkStops = newStopsMap;
-            console.log(`GTFS JMK úspěšně nahráno: nalezeno ${Object.keys(jmkStops).length} unikátních zastávek.`);
-        }
-    } catch (err) {
-        console.error("Chyba při aktualizaci GTFS JMK:", err);
-    }
-}
-
-// Spustíme hned po zapnutí serveru a pak každých 24 hodin
-updateJmkGtfs();
-setInterval(updateJmkGtfs, 24 * 60 * 60 * 1000);
 
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => console.log(`GRAPP Můstek naslouchá na portu ${PORT}`));
