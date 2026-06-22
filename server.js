@@ -205,5 +205,32 @@ app.get('/pid/shape', async (req, res) => {
     }
 });
 
+// --- 8. ENDPOINT PRO JÍZDNÍ ŘÁD PID (getTimetable) ---
+app.get('/pid/timetable', async (req, res) => {
+    try {
+        const { trip_id, vehicle } = req.query;
+        const response = await fetch('https://mapa.pid.cz/getTimetable.php', {
+            method: 'POST',
+            headers: {
+                'Accept': 'application/json',
+                'Content-Type': 'application/json',
+                'X-Requested-With': 'XMLHttpRequest',
+                'Origin': 'https://mapa.pid.cz',
+                'Referer': 'https://mapa.pid.cz/'
+            },
+            body: JSON.stringify({
+                trip_id: trip_id,
+                vehicle: vehicle ? vehicle : ""
+            })
+        });
+
+        if (!response.ok) throw new Error("PID Timetable API selhalo");
+        const data = await response.json(); 
+        res.json(data);
+    } catch (err) {
+        res.status(500).send("Chyba při stahování PID jízdního řádu");
+    }
+});
+
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => console.log(`GRAPP Můstek naslouchá na portu ${PORT}`));
