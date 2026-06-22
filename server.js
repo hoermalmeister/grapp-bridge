@@ -150,20 +150,16 @@ app.get('/pid', async (req, res) => {
     }
 });
 
-// --- 6. NOVÝ ENDPOINT PRO DETAIL PID VOZIDLA ---
+// --- 6. ENDPOINT PRO DETAIL PID VOZIDLA (getVehicleWindow) ---
 app.get('/pid/detail', async (req, res) => {
     try {
         const { route_type, vehicle } = req.query;
-
-        // Vytvoříme POST požadavek přesně podle tvého zadání
         const response = await fetch('https://mapa.pid.cz/getVehicleWindow.php', {
             method: 'POST',
             headers: {
-                'Accept': 'application/json, text/javascript, */*; q=0.01',
+                'Accept': 'application/json',
                 'Content-Type': 'application/json',
-                'X-Requested-With': 'XMLHttpRequest',
-                'Origin': 'https://mapa.pid.cz',
-                'Referer': 'https://mapa.pid.cz/'
+                'X-Requested-With': 'XMLHttpRequest'
             },
             body: JSON.stringify({
                 route_type: parseInt(route_type),
@@ -173,14 +169,35 @@ app.get('/pid/detail', async (req, res) => {
         });
 
         if (!response.ok) throw new Error("PID Detail API selhalo");
-        
-        // Z PIDu se obvykle vrací buď čisté HTML nebo JSON s HTML uvnitř
-        const data = await response.text(); 
-        res.send(data);
-
+        const data = await response.json(); 
+        res.json(data); // Vrací objekt s "infowindow_content"
     } catch (err) {
-        console.error("Chyba detailu PID:", err);
         res.status(500).send("Chyba při stahování PID detailů");
+    }
+});
+
+// --- 7. ENDPOINT PRO TVAR TRASY A ZASTÁVKY PID (getShape) ---
+app.get('/pid/shape', async (req, res) => {
+    try {
+        const { id } = req.query;
+        const response = await fetch('https://mapa.pid.cz/getShape.php', {
+            method: 'POST',
+            headers: {
+                'Accept': 'application/json',
+                'Content-Type': 'application/json',
+                'X-Requested-With': 'XMLHttpRequest'
+            },
+            body: JSON.stringify({
+                id: id,
+                past_time: false
+            })
+        });
+
+        if (!response.ok) throw new Error("PID Shape API selhalo");
+        const data = await response.json(); 
+        res.json(data); // Vrací souřadnice a seznam zastávek
+    } catch (err) {
+        res.status(500).send("Chyba při stahování tvaru PID trasy");
     }
 });
 
