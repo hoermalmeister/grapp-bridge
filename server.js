@@ -135,5 +135,54 @@ app.get('/grapp/timetable', async (req, res) => {
     }
 });
 
+// --- 5. NOVÝ ENDPOINT PRO PID ---
+app.get('/pid', async (req, res) => {
+    try {
+        // Tady backend stáhne data z PIDu (serverům CORS nevadí)
+        const response = await fetch('https://mapa.pid.cz/getData.php');
+        if (!response.ok) throw new Error("PID API selhalo");
+        
+        const data = await response.json();
+        res.json(data); // A rovnou je pošle tvému webu
+    } catch (err) {
+        console.error("Chyba PID:", err);
+        res.status(500).send("Chyba při stahování PID dat");
+    }
+});
+
+// --- 6. NOVÝ ENDPOINT PRO DETAIL PID VOZIDLA ---
+app.get('/pid/detail', async (req, res) => {
+    try {
+        const { route_type, vehicle } = req.query;
+
+        // Vytvoříme POST požadavek přesně podle tvého zadání
+        const response = await fetch('https://mapa.pid.cz/getVehicleWindow.php', {
+            method: 'POST',
+            headers: {
+                'Accept': 'application/json, text/javascript, */*; q=0.01',
+                'Content-Type': 'application/json',
+                'X-Requested-With': 'XMLHttpRequest',
+                'Origin': 'https://mapa.pid.cz',
+                'Referer': 'https://mapa.pid.cz/'
+            },
+            body: JSON.stringify({
+                route_type: parseInt(route_type),
+                vehicle: parseInt(vehicle),
+                past_time: false
+            })
+        });
+
+        if (!response.ok) throw new Error("PID Detail API selhalo");
+        
+        // Z PIDu se obvykle vrací buď čisté HTML nebo JSON s HTML uvnitř
+        const data = await response.text(); 
+        res.send(data);
+
+    } catch (err) {
+        console.error("Chyba detailu PID:", err);
+        res.status(500).send("Chyba při stahování PID detailů");
+    }
+});
+
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => console.log(`GRAPP Můstek naslouchá na portu ${PORT}`));
