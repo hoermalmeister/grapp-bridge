@@ -159,18 +159,20 @@ app.get('/pid/detail', async (req, res) => {
             headers: {
                 'Accept': 'application/json',
                 'Content-Type': 'application/json',
-                'X-Requested-With': 'XMLHttpRequest'
+                'X-Requested-With': 'XMLHttpRequest',
+                'Origin': 'https://mapa.pid.cz',      // <-- TYTO DVĚ HLAVIČKY CHYBĚLY
+                'Referer': 'https://mapa.pid.cz/'
             },
             body: JSON.stringify({
-                route_type: parseInt(route_type),
-                vehicle: parseInt(vehicle),
+                route_type: parseInt(route_type, 10),
+                vehicle: parseInt(vehicle, 10),
                 past_time: false
             })
         });
 
         if (!response.ok) throw new Error("PID Detail API selhalo");
         const data = await response.json(); 
-        res.json(data); // Vrací objekt s "infowindow_content"
+        res.json(data);
     } catch (err) {
         res.status(500).send("Chyba při stahování PID detailů");
     }
@@ -185,7 +187,9 @@ app.get('/pid/shape', async (req, res) => {
             headers: {
                 'Accept': 'application/json',
                 'Content-Type': 'application/json',
-                'X-Requested-With': 'XMLHttpRequest'
+                'X-Requested-With': 'XMLHttpRequest',
+                'Origin': 'https://mapa.pid.cz',      // <-- I SEM PRO JISTOTU
+                'Referer': 'https://mapa.pid.cz/'
             },
             body: JSON.stringify({
                 id: id,
@@ -195,7 +199,7 @@ app.get('/pid/shape', async (req, res) => {
 
         if (!response.ok) throw new Error("PID Shape API selhalo");
         const data = await response.json(); 
-        res.json(data); // Vrací souřadnice a seznam zastávek
+        res.json(data);
     } catch (err) {
         res.status(500).send("Chyba při stahování tvaru PID trasy");
     }
