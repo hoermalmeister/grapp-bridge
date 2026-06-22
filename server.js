@@ -337,7 +337,7 @@ app.get('/idsjmk', async (req, res) => {
 // Zde budeme udržovat náš rozklíčovaný slovník zastávek { "1384": "Mifkova", ... }
 let jmkStops = {};
 
-// Robustní funkce pro čtení CSV řádků, ignoruje čárky uvnitř uvozovek (např. "Brno, hl. n.")
+// Robustní funkce pro čtení CSV řádků
 function parseCsvLine(text) {
     let ret = [], current = '', inQuotes = false;
     for (let i = 0; i < text.length; i++) {
@@ -347,15 +347,16 @@ function parseCsvLine(text) {
         else if (char === ',' && !inQuotes) { ret.push(current); current = ''; }
         else { current += char; }
     }
-    ret.push(current);
+    ret.push(current.trim());
     return ret;
 }
 
-// Funkce, která jednou denně stáhne GTFS a vyextrahuje názvy parent zastávek
+// Funkce, která stáhne GTFS a vyextrahuje názvy parent zastávek
 async function updateJmkGtfs() {
     try {
         console.log("Stahuji a rozbaluji nejnovější GTFS JMK...");
         const response = await fetch('https://kordis-jmk.cz/gtfs/gtfs.zip');
+        if (!response.ok) throw new Error("Nelze stáhnout GTFS archiv");
         const buffer = await response.arrayBuffer();
         
         // Rozbalení v paměti RAM
@@ -365,31 +366,45 @@ async function updateJmkGtfs() {
         if (stopsEntry) {
             const content = zip.readAsText(stopsEntry, 'utf8');
             const lines = content.split('\n');
-            const headers = parseCsvLine(lines[0].trim());
             
-            const idIdx = headers.indexOf('stop_id');
-            const nameIdx = headers.indexOf('stop_name');
-            const typeIdx = headers.indexOf('location_type'); // Kde je 1 = parent_station
+            // Ochrana proti neviditelnému BOM znaku na začátku souboru!
+            let firstLine = lines[0].trim();
+            if (firstLine.charCodeAt(0) === 0xFEFF) {
+                firstLine = firstLine.slice(1);
+            }
+            
+            const headers = parseCsvLine(firstLine);
+            
+            // Místo indexOf použijeme includes (imunní proti neviditelným mezerám)
+            const idIdx = headers.findIndex(h => h.includes('stop_id'));
+            const nameIdx = headers.findIndex(h => h.includes('stop_name'));
+            const typeIdx = headers.findIndex(h => h.includes('location_type')); 
+
+            if (idIdx === -1 || nameIdx === -1) {
+                console.error("Kritická chyba: V GTFS nebyly nalezeny sloupce stop_id nebo stop_name!");
+                return;
+            }
 
             let newStopsMap = {};
 
             for(let i = 1; i < lines.length; i++) {
                 if(!lines[i]) continue;
                 const cols = parseCsvLine(lines[i].trim());
+                
                 const stop_id = cols[idIdx];
                 const stop_name = cols[nameIdx];
                 const loc_type = typeIdx !== -1 ? cols[typeIdx] : null;
 
                 if(!stop_id || !stop_name) continue;
 
-                // Vytažení čísla (ID) z formátu "U1384N562" -> dostaneme "1384"
-                const idMatch = stop_id.match(/^"?U(\d+)/);
+                // Neprůstřelný Regex: Vytáhne první čisté číslo, nehledě na písmena okolo
+                // např. "U17423" -> "17423", nebo "U1384N562" -> "1384"
+                const idMatch = stop_id.match(/\d+/);
                 if (idMatch) {
-                    const numericId = idMatch[1];
+                    const numericId = idMatch[0];
                     const isParent = loc_type === '1';
 
-                    // Dáme absolutní přednost "parent_station" (přesně podle tvého zadání), 
-                    // ale uložíme si i nástupiště, kdyby náhodou Parent chyběl.
+                    // Dáme absolutní přednost "parent_station"
                     if (isParent || !newStopsMap[numericId]) {
                         newStopsMap[numericId] = stop_name.replace(/"/g, '');
                     }
