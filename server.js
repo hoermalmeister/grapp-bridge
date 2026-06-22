@@ -1,5 +1,6 @@
 import express from 'express';
 import cors from 'cors';
+import AdmZip from 'adm-zip';
 
 const app = express();
 app.use(cors());
@@ -226,6 +227,14 @@ app.get('/pid/timetable', async (req, res) => {
 
         if (!response.ok) throw new Error("PID Timetable API selhalo");
         const data = await response.json(); 
+        if (data && data.Vehicles) {
+            data.Vehicles.forEach(v => {
+                if (v.LastStopID && jmkStops[v.LastStopID]) {
+                    // Do JSONu přidáme zbrusu nový klíč, který originální API nemá
+                    v.LastStopName = jmkStops[v.LastStopID];
+                }
+            });
+        }
         res.json(data);
     } catch (err) {
         res.status(500).send("Chyba při stahování PID jízdního řádu");
@@ -324,6 +333,80 @@ app.get('/idsjmk', async (req, res) => {
         res.status(500).send(err.message);
     }
 });
+
+// Zde budeme udržovat náš rozklíčovaný slovník zastávek { "1384": "Mifkova", ... }
+let jmkStops = {};
+
+// Robustní funkce pro čtení CSV řádků, ignoruje čárky uvnitř uvozovek (např. "Brno, hl. n.")
+function parseCsvLine(text) {
+    let ret = [], current = '', inQuotes = false;
+    for (let i = 0; i < text.length; i++) {
+        let char = text[i];
+        if (char === '"' && text[i+1] === '"') { current += '"'; i++; } 
+        else if (char === '"') { inQuotes = !inQuotes; }
+        else if (char === ',' && !inQuotes) { ret.push(current); current = ''; }
+        else { current += char; }
+    }
+    ret.push(current);
+    return ret;
+}
+
+// Funkce, která jednou denně stáhne GTFS a vyextrahuje názvy parent zastávek
+async function updateJmkGtfs() {
+    try {
+        console.log("Stahuji a rozbaluji nejnovější GTFS JMK...");
+        const response = await fetch('https://kordis-jmk.cz/gtfs/gtfs.zip');
+        const buffer = await response.arrayBuffer();
+        
+        // Rozbalení v paměti RAM
+        const zip = new AdmZip(Buffer.from(buffer));
+        const stopsEntry = zip.getEntries().find(e => e.entryName === 'stops.txt');
+        
+        if (stopsEntry) {
+            const content = zip.readAsText(stopsEntry, 'utf8');
+            const lines = content.split('\n');
+            const headers = parseCsvLine(lines[0].trim());
+            
+            const idIdx = headers.indexOf('stop_id');
+            const nameIdx = headers.indexOf('stop_name');
+            const typeIdx = headers.indexOf('location_type'); // Kde je 1 = parent_station
+
+            let newStopsMap = {};
+
+            for(let i = 1; i < lines.length; i++) {
+                if(!lines[i]) continue;
+                const cols = parseCsvLine(lines[i].trim());
+                const stop_id = cols[idIdx];
+                const stop_name = cols[nameIdx];
+                const loc_type = typeIdx !== -1 ? cols[typeIdx] : null;
+
+                if(!stop_id || !stop_name) continue;
+
+                // Vytažení čísla (ID) z formátu "U1384N562" -> dostaneme "1384"
+                const idMatch = stop_id.match(/^"?U(\d+)/);
+                if (idMatch) {
+                    const numericId = idMatch[1];
+                    const isParent = loc_type === '1';
+
+                    // Dáme absolutní přednost "parent_station" (přesně podle tvého zadání), 
+                    // ale uložíme si i nástupiště, kdyby náhodou Parent chyběl.
+                    if (isParent || !newStopsMap[numericId]) {
+                        newStopsMap[numericId] = stop_name.replace(/"/g, '');
+                    }
+                }
+            }
+            
+            jmkStops = newStopsMap;
+            console.log(`GTFS JMK úspěšně nahráno: nalezeno ${Object.keys(jmkStops).length} unikátních zastávek.`);
+        }
+    } catch (err) {
+        console.error("Chyba při aktualizaci GTFS JMK:", err);
+    }
+}
+
+// Spustíme hned po zapnutí serveru a pak každých 24 hodin
+updateJmkGtfs();
+setInterval(updateJmkGtfs, 24 * 60 * 60 * 1000);
 
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => console.log(`GRAPP Můstek naslouchá na portu ${PORT}`));
