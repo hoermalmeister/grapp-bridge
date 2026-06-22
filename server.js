@@ -1,6 +1,5 @@
 import express from 'express';
 import cors from 'cors';
-import crypto from 'crypto';
 
 const app = express();
 app.use(cors());
@@ -233,31 +232,86 @@ app.get('/pid/timetable', async (req, res) => {
     }
 });
 
-// --- 9. ENDPOINT PRO IDS JMK (S dynamickým tokenem a ochranou proti pádům) ---
+// Paměť pro aktuálně platný token (začneme tím tvým úlovkem)
+let jmkToken = 'fFdFQnwyODczZjViZS1lNmMwLTQwMWItOGJmMC05MmRiMzJkMmRmZWY=';
+
+// --- FUNKCE PRO AUTOMATICKÉ NALEZENÍ NOVÉHO TOKENU ---
+async function refreshJmkToken() {
+    console.log("IDS JMK token pravděpodobně vypršel. Hledám nový ze zdrojových kódů...");
+    try {
+        // 1. Stáhneme hlavní HTML stránku
+        const response = await fetch('https://mapa.idsjmk.cz/');
+        const html = await response.text();
+        
+        // Regulární výraz pro hledání Base64 textu začínajícího na fFdFQnw ("|WEB|")
+        const tokenRegex = /(fFdFQnw[A-Za-z0-9+/=]+)/;
+        
+        // 2. Prohledáme nejprve samotné HTML
+        let match = html.match(tokenRegex);
+        if (match && match[1]) {
+            jmkToken = match[1];
+            console.log("Auto-Heal: Nový token nalezen přímo v HTML.");
+            return true;
+        }
+
+        // 3. Většinou je ale v moderních webech token skrytý až v načtených .js souborech (React/Angular)
+        const scriptMatches = [...html.matchAll(/<script[^>]+src="([^">]+)"/g)];
+        for (const scriptMatch of scriptMatches) {
+            let scriptUrl = scriptMatch[1];
+            if (!scriptUrl.startsWith('http')) {
+                scriptUrl = 'https://mapa.idsjmk.cz' + (scriptUrl.startsWith('/') ? '' : '/') + scriptUrl;
+            }
+
+            const scriptRes = await fetch(scriptUrl);
+            const scriptText = await scriptRes.text();
+            
+            match = scriptText.match(tokenRegex);
+            if (match && match[1]) {
+                jmkToken = match[1];
+                console.log(`Auto-Heal: Nový token nalezen v JS souboru (${scriptUrl}).`);
+                return true;
+            }
+        }
+
+        console.error("Auto-Heal selhal: Token se nepodařilo najít.");
+        return false;
+    } catch (err) {
+        console.error("Chyba při vyhledávání nového tokenu:", err);
+        return false;
+    }
+}
+
+// --- 9. ENDPOINT PRO IDS JMK (S Auto-Healingem) ---
 app.get('/idsjmk', async (req, res) => {
     try {
-        // 1. Spolehlivý generátor UUID nezávislý na verzi Node.js (nemusíš importovat crypto)
-        const uuid = 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
-            const r = Math.random() * 16 | 0, v = c === 'x' ? r : (r & 0x3 | 0x8);
-            return v.toString(16);
-        });
-        
-        // 2. Složení tokenu
-        const rawToken = `|WEB|${uuid}`;
-        const accessToken = Buffer.from(rawToken).toString('base64');
-
-        // 3. Odeslání dotazu s kompletními hlavičkami (včetně User-Agent proti blokaci)
-        const response = await fetch('https://mapa.idsjmk.cz/api/vehicles', {
+        // Pokusíme se načíst data s naším aktuálně uloženým tokenem
+        let response = await fetch('https://mapa.idsjmk.cz/api/vehicles', {
             headers: {
-                'Accept': 'application/json, text/plain, */*',
+                'accept': 'application/json, text/plain, */*',
                 'Origin': 'https://mapa.idsjmk.cz',
                 'Referer': 'https://mapa.idsjmk.cz/',
-                'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
-                'x-access-token': accessToken 
+                'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36',
+                'x-access-token': jmkToken
             }
         });
 
-        // 4. Pokud server IDS JMK vrátí chybu, zachytíme ji
+        // Pokud nás server vyhodí kvůli starému tokenu (401 nebo 403), spustíme opravu
+        if (response.status === 401 || response.status === 403) {
+            const refreshed = await refreshJmkToken();
+            if (refreshed) {
+                // Token byl úspěšně nalezen a obnoven! Zkusíme dotaz na API poslat znovu
+                response = await fetch('https://mapa.idsjmk.cz/api/vehicles', {
+                    headers: {
+                        'accept': 'application/json, text/plain, */*',
+                        'Origin': 'https://mapa.idsjmk.cz',
+                        'Referer': 'https://mapa.idsjmk.cz/',
+                        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64)',
+                        'x-access-token': jmkToken
+                    }
+                });
+            }
+        }
+
         if (!response.ok) {
             const text = await response.text();
             throw new Error(`API JMK zamítlo přístup: ${response.status} - ${text}`);
@@ -266,7 +320,6 @@ app.get('/idsjmk', async (req, res) => {
         const data = await response.json(); 
         res.json(data);
     } catch (err) {
-        // Vypíše chybu do logů Renderu a pošle ji jako text na frontend
         console.error("Chyba IDS JMK Můstku:", err.message);
         res.status(500).send(err.message);
     }
