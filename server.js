@@ -385,53 +385,82 @@ app.get('/idsjmk-debug', (req, res) => {
     });
 });
 
-// --- 9. ENDPOINT PRO IDS JMK (S auto-healingem a GTFS názvy) ---
+// --- POMOCNÁ FUNKCE PRO VOLÁNÍ API JMK (S Auto-Healingem) ---
+async function fetchJmkApi(url) {
+    let options = {
+        headers: {
+            'accept': 'application/json, text/plain, */*',
+            'Origin': 'https://mapa.idsjmk.cz',
+            'Referer': 'https://mapa.idsjmk.cz/',
+            'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64)',
+            'x-access-token': jmkToken
+        }
+    };
+
+    let response = await fetch(url, options);
+
+    // Pokud token vypršel, spustíme obnovu a zkusíme to znovu
+    if (response.status === 401 || response.status === 403) {
+        const refreshed = await refreshJmkToken();
+        if (refreshed) {
+            options.headers['x-access-token'] = jmkToken;
+            response = await fetch(url, options);
+        }
+    }
+
+    if (!response.ok) {
+        const text = await response.text();
+        throw new Error(`API JMK zamítlo přístup: ${response.status} - ${text}`);
+    }
+    
+    return await response.json();
+}
+
+// --- 9A. ENDPOINT PRO IDS JMK (Základní polohy) ---
 app.get('/idsjmk', async (req, res) => {
     try {
-        let response = await fetch('https://mapa.idsjmk.cz/api/vehicles', {
-            headers: {
-                'accept': 'application/json, text/plain, */*',
-                'Origin': 'https://mapa.idsjmk.cz',
-                'Referer': 'https://mapa.idsjmk.cz/',
-                'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64)',
-                'x-access-token': jmkToken
-            }
-        });
-
-        if (response.status === 401 || response.status === 403) {
-            const refreshed = await refreshJmkToken();
-            if (refreshed) {
-                response = await fetch('https://mapa.idsjmk.cz/api/vehicles', {
-                    headers: {
-                        'accept': 'application/json, text/plain, */*',
-                        'Origin': 'https://mapa.idsjmk.cz',
-                        'Referer': 'https://mapa.idsjmk.cz/',
-                        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64)',
-                        'x-access-token': jmkToken
-                    }
-                });
-            }
-        }
-
-        if (!response.ok) {
-            const text = await response.text();
-            throw new Error(`API JMK zamítlo přístup: ${response.status} - ${text}`);
-        }
+        const data = await fetchJmkApi('https://mapa.idsjmk.cz/api/vehicles');
         
-        const data = await response.json(); 
-        
-        // Projdeme všechna vozidla a podle LastStopID jim přidáme LastStopName
+        // Doplníme cílovou stanici ze slovníku GTFS
         if (data && data.Vehicles) {
             data.Vehicles.forEach(v => {
-                if (v.LastStopID && jmkStops[v.LastStopID]) {
-                    v.LastStopName = jmkStops[v.LastStopID];
-                }
+                if (v.LastStopID && jmkStops[v.LastStopID]) v.LastStopName = jmkStops[v.LastStopID];
             });
         }
-
         res.json(data);
     } catch (err) {
-        console.error("Chyba IDS JMK Můstku:", err.message);
+        console.error("Chyba IDS JMK Polohy:", err.message);
+        res.status(500).send(err.message);
+    }
+});
+
+// --- 9B. ENDPOINT PRO IDS JMK (Trasa na mapě) ---
+app.get('/idsjmk-route', async (req, res) => {
+    try {
+        const { serviceid, lineid, routeid } = req.query;
+        const data = await fetchJmkApi(`https://mapa.idsjmk.cz/api/routepath?serviceid=${serviceid}&lineid=${lineid}&routeid=${routeid}`);
+        res.json(data);
+    } catch (err) {
+        console.error("Chyba IDS JMK Trasa:", err.message);
+        res.status(500).send(err.message);
+    }
+});
+
+// --- 9C. ENDPOINT PRO IDS JMK (Jízdní řád) ---
+app.get('/idsjmk-timetable', async (req, res) => {
+    try {
+        const { serviceid, lineid, routeid } = req.query;
+        const data = await fetchJmkApi(`https://mapa.idsjmk.cz/api/serviceinfo?serviceid=${serviceid}&lineid=${lineid}&routeid=${routeid}`);
+        
+        // Okamžitě přeložíme nesmyslná čísla zastávek na hezké texty
+        if (data && data.Routes && data.Routes.length > 0) {
+            data.Routes[0].Stops.forEach(stop => {
+                stop.StopName = jmkStops[stop.StopId] || `Zastávka ID: ${stop.StopId}`;
+            });
+        }
+        res.json(data);
+    } catch (err) {
+        console.error("Chyba IDS JMK JŘ:", err.message);
         res.status(500).send(err.message);
     }
 });
