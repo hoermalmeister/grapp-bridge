@@ -293,6 +293,20 @@ async function refreshJmkToken() {
 let jmkStops = {};
 let jmkGtfsStatus = "Server nastartoval, čekám na první stažení..."; // <--- NOVÉ PRO REVIZI
 
+const manualStops = {
+    "15244": "Blučina, CTP",
+    "20220": "Brodek u Prostějova",
+    "20221": "Hradčany-Kobeřice, Kobeřice",
+    "20223": "Dobrochov, pohostinství",
+    "20222": "Dobrochov",
+    "20224": "Vranovice-Kelčice, Kelčice, pod mostem",
+    "20225": "Dětkovice",
+    "20226": "Prostějov, Brněnská",
+    "20227": "Prostějov, Újezd",
+    "30013": "Prostějov, aut.st.",
+    "7510": "Nová Zbrojovka"
+};
+
 // Robustní funkce pro čtení CSV řádků
 function parseCsvLine(text) {
     let ret = [], current = '', inQuotes = false;
@@ -421,10 +435,16 @@ app.get('/idsjmk', async (req, res) => {
     try {
         const data = await fetchJmkApi('https://mapa.idsjmk.cz/api/vehicles');
         
-        // Doplníme cílovou stanici ze slovníku GTFS
+        // Doplníme cílovou stanici ze slovníku GTFS NEBO manuálního slovníku
         if (data && data.Vehicles) {
             data.Vehicles.forEach(v => {
-                if (v.LastStopID && jmkStops[v.LastStopID]) v.LastStopName = jmkStops[v.LastStopID];
+                if (v.LastStopID) {
+                    // Magie: Zkusí manuální slovník, když není, zkusí GTFS
+                    const stopName = manualStops[v.LastStopID] || jmkStops[v.LastStopID];
+                    if (stopName) {
+                        v.LastStopName = stopName;
+                    }
+                }
             });
         }
         res.json(data);
@@ -455,7 +475,8 @@ app.get('/idsjmk-timetable', async (req, res) => {
         // Okamžitě přeložíme nesmyslná čísla zastávek na hezké texty
         if (data && data.Routes && data.Routes.length > 0) {
             data.Routes[0].Stops.forEach(stop => {
-                stop.StopName = jmkStops[stop.StopId] || `Zastávka ID: ${stop.StopId}`;
+                // Stejný princip: Manuální přepis -> GTFS -> "Zastávka ID: ..."
+                stop.StopName = manualStops[stop.StopId] || jmkStops[stop.StopId] || `Zastávka ID: ${stop.StopId}`;
             });
         }
         res.json(data);
