@@ -472,11 +472,17 @@ app.get('/idsjmk-timetable', async (req, res) => {
         const { serviceid, lineid, routeid } = req.query;
         const data = await fetchJmkApi(`https://mapa.idsjmk.cz/api/serviceinfo?serviceid=${serviceid}&lineid=${lineid}&routeid=${routeid}`);
         
-        // Okamžitě přeložíme nesmyslná čísla zastávek na hezké texty
+        // Zpracování zastávek a označení technických waypointů
         if (data && data.Routes && data.Routes.length > 0) {
             data.Routes[0].Stops.forEach(stop => {
-                // Stejný princip: Manuální přepis -> GTFS -> "Zastávka ID: ..."
-                stop.StopName = manualStops[stop.StopId] || jmkStops[stop.StopId] || `Zastávka ID: ${stop.StopId}`;
+                const name = manualStops[stop.StopId] || jmkStops[stop.StopId];
+                if (name) {
+                    stop.StopName = name;
+                    stop.IsKnown = true; // Značka pro frontend: Zobrazit!
+                } else {
+                    stop.StopName = `Waypoint ID: ${stop.StopId}`;
+                    stop.IsKnown = false; // Značka pro frontend: Technický bod, skrýt!
+                }
             });
         }
         res.json(data);
