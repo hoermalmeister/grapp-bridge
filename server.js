@@ -180,24 +180,28 @@ app.get('/grapp/timetable', async (req, res) => {
     }
 });
 
-// --- 5. NOVÝ ENDPOINT PRO PID ---
+// --- 5. ENDPOINT PRO PID ---
 app.get('/pid', async (req, res) => {
     try {
-        // Tady backend stáhne data z PIDu (serverům CORS nevadí)
         const response = await fetch('https://mapa.pid.cz/getData.php');
         if (!response.ok) throw new Error("PID API selhalo");
     
         const data = await response.json();
         
         if (data && data.trips) {
-            data.trips.forEach(t => {
-                if (t.tripId && pidTrips[t.tripId]) {
-                    t.cisjrLine = pidTrips[t.tripId].cisjrLine;
-                    t.cisjrTrip = pidTrips[t.tripId].cisjrTrip;
+            // Zabezpečení: Převede na pole, ať už PID pošle Array nebo Objekt
+            const tripsArray = Array.isArray(data.trips) ? data.trips : Object.values(data.trips);
+            
+            tripsArray.forEach(t => {
+                const actualId = t.id || t.trip_id || t.tripId;
+                
+                if (actualId && pidTrips[actualId]) {
+                    t.cisjrLine = pidTrips[actualId].cisjrLine;
+                    t.cisjrTrip = pidTrips[actualId].cisjrTrip;
                 }
             });
         }
-        res.json(data); // A rovnou je pošle tvému webu
+        res.json(data);
     } catch (err) {
         console.error("Chyba PID:", err);
         res.status(500).send("Chyba při stahování PID dat");
