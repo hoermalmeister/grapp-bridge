@@ -304,7 +304,22 @@ const manualStops = {
     "20226": "Prostějov, Brněnská",
     "20227": "Prostějov, Újezd",
     "30013": "Prostějov, aut.st.",
-    "7510": "Nová Zbrojovka"
+    "7510": "Nová Zbrojovka",
+    "20201": "Malé Hradisko",
+    "20202": "Ptení, Holubice, rozcestí",
+    "20203": "Stínava",
+    "20204": "Vícov",
+    "20206": "Plumlov, Hamry",
+    "20207": "Plumlov, Žárovice",
+    "20208": "Plumlov, Soběsuky",
+    "20209": "Plumlov",
+    "20210": "Plumlov, přehrada",
+    "20211": "Mostkovice, kino",
+    "20212": "Mostkovice, pomník",
+    "20213": "Prostějov, Krasice, rozcestí",
+    "20214": "Prostějov, nemocnice",
+    "20215": "Prostějov, Floriánské náměstí",
+    "20217": "Prostějov, Svatoplukova DONA"
 };
 
 // Robustní funkce pro čtení CSV řádků
@@ -472,17 +487,16 @@ app.get('/idsjmk-timetable', async (req, res) => {
         const { serviceid, lineid, routeid } = req.query;
         const data = await fetchJmkApi(`https://mapa.idsjmk.cz/api/serviceinfo?serviceid=${serviceid}&lineid=${lineid}&routeid=${routeid}`);
         
-        // Zpracování zastávek a označení technických waypointů
+        // Zpracování zastávek a označení technických waypointů vs. veřejných bodů
         if (data && data.Routes && data.Routes.length > 0) {
             data.Routes[0].Stops.forEach(stop => {
                 const name = manualStops[stop.StopId] || jmkStops[stop.StopId];
-                if (name) {
-                    stop.StopName = name;
-                    stop.IsKnown = true; // Značka pro frontend: Zobrazit!
-                } else {
-                    stop.StopName = `Waypoint ID: ${stop.StopId}`;
-                    stop.IsKnown = false; // Značka pro frontend: Technický bod, skrýt!
-                }
+                
+                stop.HasName = !!name;
+                stop.StopName = name ? name : `Zastávka ID: ${stop.StopId}`;
+                
+                // Do JŘ propustíme zastávku pokud ji známe jménem, NEBO pokud je veřejná
+                stop.IsVisible = stop.HasName || stop.IsPublic === true;
             });
         }
         res.json(data);
