@@ -7,6 +7,7 @@ app.use(cors());
 
 let jmkStops = {};
 let pidTrips = {};
+let pidTripsShort = {};
 
 const manualStops = {
     "15244": "Blučina, CTP",
@@ -232,17 +233,38 @@ app.get('/pid', async (req, res) => {
 
 // --- NOVÝ DIAGNOSTICKÝ ENDPOINT PRO PID ---
 app.get('/pid-debug', (req, res) => {
-    let filesInData = [];
-    try { filesInData = fs.readdirSync('./data'); } catch(e){}
+    try {
+        let filesInData = [];
+        try { 
+            filesInData = fs.readdirSync('./data'); 
+        } catch(err) { 
+            filesInData = ["Složka data/ neexistuje nebo ji nelze přečíst"]; 
+        }
 
-    res.json({
-        zastavek_jmk: Object.keys(jmkStops).length,
-        spoju_pid_presnych: Object.keys(pidTrips).length,
-        spoju_pid_zkracenych: Object.keys(pidTripsShort).length,
-        soubory_ve_slozce_data: filesInData,
-        test_presny_226_44_240926: pidTrips["226_44_240926"] || "Nenalezeno (datum nesedí s GTFS)",
-        test_zkraceny_226_44: pidTripsShort["226_44"] || "Nenalezeno (spoj v GTFS vůbec není)"
-    });
+        // Bezpečné zjištění délky slovníku (nespadne, i když je slovník null nebo nedeklarovaný)
+        const safeKeys = (obj) => {
+            if (obj && typeof obj === 'object') return Object.keys(obj).length;
+            return `Chyba: Není objekt (je to ${obj === null ? 'null' : typeof obj})`;
+        };
+
+        const safeGet = (obj, key) => {
+            if (obj && typeof obj === 'object') return obj[key] || "Nenalezeno";
+            return "Nelze hledat, slovník je poškozený";
+        };
+
+        res.json({
+            status: "Debug funguje bez pádu",
+            zastavek_jmk: safeKeys(typeof jmkStops !== 'undefined' ? jmkStops : null),
+            spoju_pid_presnych: safeKeys(typeof pidTrips !== 'undefined' ? pidTrips : null),
+            spoju_pid_zkracenych: safeKeys(typeof pidTripsShort !== 'undefined' ? pidTripsShort : null),
+            soubory_ve_slozce_data: filesInData,
+            test_presny_226_44_240926: safeGet(typeof pidTrips !== 'undefined' ? pidTrips : null, "226_44_240926"),
+            test_zkraceny_226_44: safeGet(typeof pidTripsShort !== 'undefined' ? pidTripsShort : null, "226_44")
+        });
+    } catch (e) {
+        // Místo chyby 500 se nám ukáže přesný důvod selhání!
+        res.status(200).json({ chyba_debugu: e.message, detail: e.stack });
+    }
 });
 
 // --- 6. ENDPOINT PRO DETAIL PID VOZIDLA (getVehicleWindow) ---
