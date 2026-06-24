@@ -490,6 +490,27 @@ app.get('/idsjmk-timetable', async (req, res) => {
     }
 });
 
+// Pomocná funkce pro výpočet azimutu (vychází ze sférické geometrie)
+function calculateBearing(lat1, lon1, lat2, lon2) {
+    const toRad = (deg) => deg * Math.PI / 180;
+    const toDeg = (rad) => rad * 180 / Math.PI;
+
+    const startLat = toRad(lat1);
+    const startLng = toRad(lon1);
+    const destLat = toRad(lat2);
+    const destLng = toRad(lon2);
+
+    const y = Math.sin(destLng - startLng) * Math.cos(destLat);
+    const x = Math.cos(startLat) * Math.sin(destLat) -
+              Math.sin(startLat) * Math.cos(destLat) * Math.cos(destLng - startLng);
+    
+    let bearing = Math.atan2(y, x);
+    return (toDeg(bearing) + 360) % 360;
+}
+
+// Globální paměť pro uchování poloh VDV vozidel
+let vdvVehicleStates = {};
+
 // --- 10. ENDPOINT PRO VDV (Hlavní data) ---
 app.get('/vdv', async (req, res) => {
     try {
@@ -498,6 +519,50 @@ app.get('/vdv', async (req, res) => {
         if (!response.ok) throw new Error("VDV API selhalo");
         
         const data = await response.json();
+        const currentIds = new Set();
+
+        data.forEach(trip => {
+            currentIds.add(trip.id);
+
+            // Pokud vidíme vozidlo poprvé, uložíme ho s nullovým směrem
+            if (!vdvVehicleStates[trip.id]) {
+                vdvVehicleStates[trip.id] = {
+                    lat: trip.lat,
+                    lng: trip.lng,
+                    heading: null,
+                    staticCount: 0
+                };
+                trip.heading = null;
+            } else {
+                const state = vdvVehicleStates[trip.id];
+
+                // Pokud jsou souřadnice úplně stejné
+                if (state.lat === trip.lat && state.lng === trip.lng) {
+                    state.staticCount++;
+                    // Pokud vozidlo stojí déle než 30 iterací (cca 5 min), vymažeme mu směr (vrátí se na kroužek)
+                    if (state.staticCount > 30) {
+                        state.heading = null;
+                    }
+                } else {
+                    // Vozidlo se pohnulo -> Vypočítáme nový směr a vynulujeme čítač stání
+                    state.heading = calculateBearing(state.lat, state.lng, trip.lat, trip.lng);
+                    state.lat = trip.lat;
+                    state.lng = trip.lng;
+                    state.staticCount = 0;
+                }
+                
+                // Přilepíme spočítaný směr přímo do odesílaného JSONu
+                trip.heading = state.heading;
+            }
+        });
+
+        // Garbage Collector: Vymažeme z paměti vozidla, která už z VDV API zmizela (zabráníme přetečení paměti)
+        for (const id in vdvVehicleStates) {
+            if (!currentIds.has(Number(id))) {
+                delete vdvVehicleStates[id];
+            }
+        }
+
         res.json(data);
     } catch (err) {
         console.error("Chyba VDV GetPoints:", err.message);
