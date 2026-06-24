@@ -61,7 +61,7 @@ async function processPID() {
     const buffer = await res.arrayBuffer();
     const zip = new AdmZip(Buffer.from(buffer));
 
-    // 1. Zpracování routes.txt
+    // 1. Zpracování routes.txt (Získání CISJR linky)
     const routesEntry = zip.getEntries().find(e => e.entryName === 'routes.txt');
     const routeLines = zip.readAsText(routesEntry, 'utf8').split('\n');
     let routeHeader = routeLines[0].trim();
@@ -81,14 +81,13 @@ async function processPID() {
         }
     }
 
-    // 2. Zpracování trips.txt
+    // 2. Zpracování trips.txt (Párování CISJR spoje s PID identifikátorem z Golemia)
     const tripsEntry = zip.getEntries().find(e => e.entryName === 'trips.txt');
     const tripLines = zip.readAsText(tripsEntry, 'utf8').split('\n');
     let tripHeader = tripLines[0].trim();
     if (tripHeader.charCodeAt(0) === 0xFEFF) tripHeader = tripHeader.slice(1);
 
     const tH = parseCsvLine(tripHeader);
-    const tIdIdx = tH.findIndex(h => h.includes('trip_id'));
     const tRIdIdx = tH.findIndex(h => h.includes('route_id'));
     const tRelIdx = tH.findIndex(h => h.includes('relations'));
 
@@ -96,17 +95,25 @@ async function processPID() {
     for (let i = 1; i < tripLines.length; i++) {
         if (!tripLines[i]) continue;
         const cols = parseCsvLine(tripLines[i].trim());
-        const tId = cols[tIdIdx], rId = cols[tRIdIdx], rel = cols[tRelIdx];
+        const rId = cols[tRIdIdx];
+        const rel = cols[tRelIdx];
 
-        if (tId && rel && routeMap[rId]) {
-            const match = rel.match(/CISJR:(\d+)/);
-            if (match) {
-                pidTrips[tId] = { cisjrLine: routeMap[rId], cisjrTrip: match[1] };
+        // Hledáme relace, které mají jak CISJR, tak i PID!
+        if (rel && routeMap[rId]) {
+            const cisjrMatch = rel.match(/CISJR:(\d+)/);
+            const pidMatch = rel.match(/PID:([0-9_]+)/); // Typicky vyškrtne např. 320_609_260420
+
+            if (cisjrMatch && pidMatch) {
+                const pidKey = pidMatch[1]; // Toto je to naše tripId z Golemia
+                pidTrips[pidKey] = {
+                    cisjrLine: routeMap[rId],
+                    cisjrTrip: cisjrMatch[1]
+                };
             }
         }
     }
     fs.writeFileSync('./data/pid_cisjr.json', JSON.stringify(pidTrips));
-    console.log(`PID hotovo: ${Object.keys(pidTrips).length} CISJR spojů.`);
+    console.log(`PID hotovo: ${Object.keys(pidTrips).length} CISJR spojů uloženo pod PID klíči.`);
 }
 
 // Vytvoříme cílovou složku, pokud neexistuje
