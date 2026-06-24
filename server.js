@@ -490,5 +490,38 @@ app.get('/idsjmk-timetable', async (req, res) => {
     }
 });
 
+// --- 10. ENDPOINT PRO VDV (Hlavní data) ---
+app.get('/vdv', async (req, res) => {
+    try {
+        const targetUrl = `https://mapavdv.kr-vysocina.cz/Ajax/GetPoints?t=${Date.now()}`;
+        const response = await fetch(targetUrl);
+        if (!response.ok) throw new Error("VDV API selhalo");
+        
+        const data = await response.json();
+        res.json(data);
+    } catch (err) {
+        console.error("Chyba VDV GetPoints:", err.message);
+        res.status(500).send("Chyba při stahování VDV dat");
+    }
+});
+
+// --- 11. ENDPOINT PRO VDV (Detail vozidla) ---
+app.get('/vdv/detail', async (req, res) => {
+    try {
+        const { id } = req.query;
+        if (!id) return res.status(400).send("Chybí ID");
+
+        const targetUrl = `https://mapavdv.kr-vysocina.cz/Ajax/OpenInfoWindow?id=${id}&t=${Date.now()}`;
+        const response = await fetch(targetUrl);
+        if (!response.ok) throw new Error("VDV Detail API selhalo");
+        
+        const html = await response.text();
+        res.send(html);
+    } catch (err) {
+        console.error("Chyba VDV Detail:", err.message);
+        res.status(500).send("Chyba při stahování VDV detailů");
+    }
+});
+
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => console.log(`GRAPP Můstek naslouchá na portu ${PORT}`));
