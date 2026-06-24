@@ -1,6 +1,6 @@
 import express from 'express';
 import cors from 'cors';
-import AdmZip from 'adm-zip';
+import fs from 'fs';
 
 const app = express();
 app.use(cors());
