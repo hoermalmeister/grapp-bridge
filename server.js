@@ -43,8 +43,16 @@ try {
     }
     if (fs.existsSync('./data/pid_cisjr.json')) {
         pidTrips = JSON.parse(fs.readFileSync('./data/pid_cisjr.json', 'utf8'));
+        
+        // Vytvoříme záložní slovník (odsekne datum, z 226_44_240926 udělá jen 226_44)
+        for (const [key, val] of Object.entries(pidTrips)) {
+            const parts = key.split('_');
+            if (parts.length >= 2) {
+                pidTripsShort[`${parts[0]}_${parts[1]}`] = val;
+            }
+        }
     }
-    console.log(`Data úspěšně načtena z disku. (JMK zastávek: ${Object.keys(jmkStops).length}, PID spojů: ${Object.keys(pidTrips).length})`);
+    console.log(`Data úspěšně načtena z disku. (JMK: ${Object.keys(jmkStops).length}, PID přesný: ${Object.keys(pidTrips).length}, PID zkrácený: ${Object.keys(pidTripsShort).length})`);
 } catch (e) {
     console.warn("Upozornění: JSON data zatím neexistují. Github Action je vytvoří v noci.");
 }
@@ -180,7 +188,7 @@ app.get('/grapp/timetable', async (req, res) => {
     }
 });
 
-// --- 5. ENDPOINT PRO PID ---
+// --- 5. ENDPOINT PRO PID (S chytrou iterací a fallbackem) ---
 app.get('/pid', async (req, res) => {
     try {
         const response = await fetch('https://mapa.pid.cz/getData.php');
@@ -189,19 +197,29 @@ app.get('/pid', async (req, res) => {
         const data = await response.json();
         
         if (data && data.trips) {
-            // Iterujeme přímo přes klíče objektu! Klíč je to naše ID (např. 226_44_240926)
+            // Iterujeme přes KLÍČE, protože PID to posílá jako objekt s IDčkama v názvech!
             for (const [key, t] of Object.entries(data.trips)) {
                 
-                // Vytáhneme klíč
+                // Extrahujeme ID
                 const actualId = (typeof key === 'string' && key.includes('_')) ? key : (t.id || t.trip_id || t.tripId);
                 
-                // Vnutíne ID dovnitř těla dat, ať ho frontend 100% najde i po uložení do pole
+                // Vnutíne ID dovnitř těla dat, ať ho fronted později najde
                 t.tripId = actualId;
 
-                // Matchujeme s GitHub JSONem
-                if (actualId && pidTrips[actualId]) {
-                    t.cisjrLine = pidTrips[actualId].cisjrLine;
-                    t.cisjrTrip = pidTrips[actualId].cisjrTrip;
+                let cisjrData = pidTrips[actualId]; // Zkusí přesnou shodu s datem
+                
+                // Pokud nesedí datum (častý problém PID API vs GTFS), použijeme náš chytrý zkrácený slovník!
+                if (!cisjrData && actualId) {
+                    const parts = actualId.split('_');
+                    if (parts.length >= 2) {
+                        cisjrData = pidTripsShort[`${parts[0]}_${parts[1]}`];
+                    }
+                }
+
+                // Pokud jsme našli, připojíme data
+                if (cisjrData) {
+                    t.cisjrLine = cisjrData.cisjrLine;
+                    t.cisjrTrip = cisjrData.cisjrTrip;
                 }
             }
         }
@@ -210,6 +228,21 @@ app.get('/pid', async (req, res) => {
         console.error("Chyba PID:", err);
         res.status(500).send("Chyba při stahování PID dat");
     }
+});
+
+// --- NOVÝ DIAGNOSTICKÝ ENDPOINT PRO PID ---
+app.get('/pid-debug', (req, res) => {
+    let filesInData = [];
+    try { filesInData = fs.readdirSync('./data'); } catch(e){}
+
+    res.json({
+        zastavek_jmk: Object.keys(jmkStops).length,
+        spoju_pid_presnych: Object.keys(pidTrips).length,
+        spoju_pid_zkracenych: Object.keys(pidTripsShort).length,
+        soubory_ve_slozce_data: filesInData,
+        test_presny_226_44_240926: pidTrips["226_44_240926"] || "Nenalezeno (datum nesedí s GTFS)",
+        test_zkraceny_226_44: pidTripsShort["226_44"] || "Nenalezeno (spoj v GTFS vůbec není)"
+    });
 });
 
 // --- 6. ENDPOINT PRO DETAIL PID VOZIDLA (getVehicleWindow) ---
