@@ -189,17 +189,21 @@ app.get('/pid', async (req, res) => {
         const data = await response.json();
         
         if (data && data.trips) {
-            // Zabezpečení: Převede na pole, ať už PID pošle Array nebo Objekt
-            const tripsArray = Array.isArray(data.trips) ? data.trips : Object.values(data.trips);
-            
-            tripsArray.forEach(t => {
-                const actualId = t.id || t.trip_id || t.tripId;
+            // Iterujeme přímo přes klíče objektu! Klíč je to naše ID (např. 226_44_240926)
+            for (const [key, t] of Object.entries(data.trips)) {
                 
+                // Vytáhneme klíč
+                const actualId = (typeof key === 'string' && key.includes('_')) ? key : (t.id || t.trip_id || t.tripId);
+                
+                // Vnutíne ID dovnitř těla dat, ať ho frontend 100% najde i po uložení do pole
+                t.tripId = actualId;
+
+                // Matchujeme s GitHub JSONem
                 if (actualId && pidTrips[actualId]) {
                     t.cisjrLine = pidTrips[actualId].cisjrLine;
                     t.cisjrTrip = pidTrips[actualId].cisjrTrip;
                 }
-            });
+            }
         }
         res.json(data);
     } catch (err) {
