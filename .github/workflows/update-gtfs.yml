@@ -1,0 +1,33 @@
+name: Denní aktualizace GTFS dat
+
+on:
+  schedule:
+    - cron: '45 3 * * *' # Běží každý den ráno
+  workflow_dispatch: # Přidá tlačítko do GitHubu pro manuální spuštění
+
+jobs:
+  update-data:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout repozitáře
+      uses: actions/checkout@v4
+
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '20'
+
+    - name: Instalace závislostí
+      run: npm install adm-zip
+
+    - name: Spuštění stahovacího skriptu
+      run: node scripts/update_gtfs.js
+
+    - name: Commit a Push hotových JSON souborů
+      run: |
+        git config --global user.name 'GitHub Action'
+        git config --global user.email 'action@github.com'
+        git add data/
+        git commit -m "Automatická aktualizace GTFS slovníků" || echo "Žádné změny k uložení"
+        git push
