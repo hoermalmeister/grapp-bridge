@@ -5,6 +5,50 @@ import AdmZip from 'adm-zip';
 const app = express();
 app.use(cors());
 
+let jmkStops = {};
+let pidTrips = {};
+
+const manualStops = {
+    "15244": "Blučina, CTP",
+    "20220": "Brodek u Prostějova",
+    "20221": "Hradčany-Kobeřice, Kobeřice",
+    "20223": "Dobrochov, pohostinství",
+    "20222": "Dobrochov",
+    "20224": "Vranovice-Kelčice, Kelčice, pod mostem",
+    "20225": "Dětkovice",
+    "20226": "Prostějov, Brněnská",
+    "20227": "Prostějov, Újezd",
+    "30013": "Prostějov, aut.st.",
+    "7510": "Nová Zbrojovka",
+    "20201": "Malé Hradisko",
+    "20202": "Ptení, Holubice, rozcestí",
+    "20203": "Stínava",
+    "20204": "Vícov",
+    "20206": "Plumlov, Hamry",
+    "20207": "Plumlov, Žárovice",
+    "20208": "Plumlov, Soběsuky",
+    "20209": "Plumlov",
+    "20210": "Plumlov, přehrada",
+    "20211": "Mostkovice, kino",
+    "20212": "Mostkovice, pomník",
+    "20213": "Prostějov, Krasice, rozcestí",
+    "20214": "Prostějov, nemocnice",
+    "20215": "Prostějov, Floriánské náměstí",
+    "20217": "Prostějov, Svatoplukova DONA"
+};
+
+try {
+    if (fs.existsSync('./data/jmk_stops.json')) {
+        jmkStops = JSON.parse(fs.readFileSync('./data/jmk_stops.json', 'utf8'));
+    }
+    if (fs.existsSync('./data/pid_cisjr.json')) {
+        pidTrips = JSON.parse(fs.readFileSync('./data/pid_cisjr.json', 'utf8'));
+    }
+    console.log(`Data úspěšně načtena z disku. (JMK zastávek: ${Object.keys(jmkStops).length}, PID spojů: ${Object.keys(pidTrips).length})`);
+} catch (e) {
+    console.warn("Upozornění: JSON data zatím neexistují. Github Action je vytvoří v noci.");
+}
+
 // --- 1. ENDPOINT PRO HLAVNÍ DATA ---
 app.get('/grapp', async (req, res) => {
     try {
@@ -142,8 +186,17 @@ app.get('/pid', async (req, res) => {
         // Tady backend stáhne data z PIDu (serverům CORS nevadí)
         const response = await fetch('https://mapa.pid.cz/getData.php');
         if (!response.ok) throw new Error("PID API selhalo");
-        
+    
         const data = await response.json();
+        
+        if (data && data.trips) {
+            data.trips.forEach(t => {
+                if (t.tripId && pidTrips[t.tripId]) {
+                    t.cisjrLine = pidTrips[t.tripId].cisjrLine;
+                    t.cisjrTrip = pidTrips[t.tripId].cisjrTrip;
+                }
+            });
+        }
         res.json(data); // A rovnou je pošle tvému webu
     } catch (err) {
         console.error("Chyba PID:", err);
@@ -290,118 +343,6 @@ async function refreshJmkToken() {
     }
 }
 
-let jmkStops = {};
-let jmkGtfsStatus = "Server nastartoval, čekám na první stažení..."; // <--- NOVÉ PRO REVIZI
-
-const manualStops = {
-    "15244": "Blučina, CTP",
-    "20220": "Brodek u Prostějova",
-    "20221": "Hradčany-Kobeřice, Kobeřice",
-    "20223": "Dobrochov, pohostinství",
-    "20222": "Dobrochov",
-    "20224": "Vranovice-Kelčice, Kelčice, pod mostem",
-    "20225": "Dětkovice",
-    "20226": "Prostějov, Brněnská",
-    "20227": "Prostějov, Újezd",
-    "30013": "Prostějov, aut.st.",
-    "7510": "Nová Zbrojovka",
-    "20201": "Malé Hradisko",
-    "20202": "Ptení, Holubice, rozcestí",
-    "20203": "Stínava",
-    "20204": "Vícov",
-    "20206": "Plumlov, Hamry",
-    "20207": "Plumlov, Žárovice",
-    "20208": "Plumlov, Soběsuky",
-    "20209": "Plumlov",
-    "20210": "Plumlov, přehrada",
-    "20211": "Mostkovice, kino",
-    "20212": "Mostkovice, pomník",
-    "20213": "Prostějov, Krasice, rozcestí",
-    "20214": "Prostějov, nemocnice",
-    "20215": "Prostějov, Floriánské náměstí",
-    "20217": "Prostějov, Svatoplukova DONA"
-};
-
-// Robustní funkce pro čtení CSV řádků
-function parseCsvLine(text) {
-    let ret = [], current = '', inQuotes = false;
-    for (let i = 0; i < text.length; i++) {
-        let char = text[i];
-        if (char === '"' && text[i+1] === '"') { current += '"'; i++; } 
-        else if (char === '"') { inQuotes = !inQuotes; }
-        else if (char === ',' && !inQuotes) { ret.push(current.trim()); current = ''; }
-        else { current += char; }
-    }
-    ret.push(current.trim());
-    return ret;
-}
-
-async function updateJmkGtfs() {
-    try {
-        jmkGtfsStatus = "Právě stahuji GTFS archiv z kordis-jmk.cz...";
-        const response = await fetch('https://kordis-jmk.cz/gtfs/gtfs.zip');
-        if (!response.ok) throw new Error(`Nelze stáhnout ZIP, HTTP status: ${response.status}`);
-        
-        const buffer = await response.arrayBuffer();
-        const zip = new AdmZip(Buffer.from(buffer));
-        const stopsEntry = zip.getEntries().find(e => e.entryName === 'stops.txt');
-        
-        if (!stopsEntry) throw new Error("Soubor stops.txt v ZIP archivu neexistuje!");
-
-        const content = zip.readAsText(stopsEntry, 'utf8');
-        const lines = content.split('\n');
-        
-        let firstLine = lines[0].trim();
-        if (firstLine.charCodeAt(0) === 0xFEFF) {
-            firstLine = firstLine.slice(1);
-        }
-        
-        const headers = parseCsvLine(firstLine);
-        const idIdx = headers.findIndex(h => h.includes('stop_id'));
-        const nameIdx = headers.findIndex(h => h.includes('stop_name'));
-        const typeIdx = headers.findIndex(h => h.includes('location_type')); 
-
-        if (idIdx === -1 || nameIdx === -1) {
-            throw new Error(`Nenalezeny klíčové sloupce. Nalezené hlavičky: ${headers.join(', ')}`);
-        }
-
-        let newStopsMap = {};
-        for(let i = 1; i < lines.length; i++) {
-            if(!lines[i]) continue;
-            const cols = parseCsvLine(lines[i].trim());
-            const stop_id = cols[idIdx];
-            const stop_name = cols[nameIdx];
-            const loc_type = typeIdx !== -1 ? cols[typeIdx] : null;
-
-            if(!stop_id || !stop_name) continue;
-
-            const idMatch = stop_id.match(/\d+/);
-            if (idMatch) {
-                const numericId = idMatch[0];
-                const isParent = loc_type === '1';
-
-                if (isParent || !newStopsMap[numericId]) {
-                    newStopsMap[numericId] = stop_name.replace(/"/g, '');
-                }
-            }
-        }
-        
-        jmkStops = newStopsMap;
-        // Uložíme úspěšný status s časem ražby
-        jmkGtfsStatus = `Úspěch! Slovník vygenerován v ${new Date().toLocaleTimeString()}. Celkem zastávek: ${Object.keys(jmkStops).length}`;
-        console.log(jmkGtfsStatus);
-    } catch (err) {
-        // Pokud to spadne, uložíme přesné znění chyby pro diagnostiku
-        jmkGtfsStatus = `CHYBA PŘI PARSOVÁNÍ: ${err.message}`;
-        console.error(jmkGtfsStatus);
-    }
-}
-
-// Spustíme hned po zapnutí serveru a pak každých 24 hodin
-updateJmkGtfs();
-setInterval(updateJmkGtfs, 24 * 60 * 60 * 1000);
-
-
 // =========================================================
 // DIAGNOSTICKÝ ENDPOINT
 // =========================================================
@@ -450,15 +391,11 @@ app.get('/idsjmk', async (req, res) => {
     try {
         const data = await fetchJmkApi('https://mapa.idsjmk.cz/api/vehicles');
         
-        // Doplníme cílovou stanici ze slovníku GTFS NEBO manuálního slovníku
         if (data && data.Vehicles) {
             data.Vehicles.forEach(v => {
                 if (v.LastStopID) {
-                    // Magie: Zkusí manuální slovník, když není, zkusí GTFS
-                    const stopName = manualStops[v.LastStopID] || jmkStops[v.LastStopID];
-                    if (stopName) {
-                        v.LastStopName = stopName;
-                    }
+                    const name = manualStops[v.LastStopID] || jmkStops[v.LastStopID];
+                    if (name) v.LastStopName = name;
                 }
             });
         }
@@ -487,15 +424,11 @@ app.get('/idsjmk-timetable', async (req, res) => {
         const { serviceid, lineid, routeid } = req.query;
         const data = await fetchJmkApi(`https://mapa.idsjmk.cz/api/serviceinfo?serviceid=${serviceid}&lineid=${lineid}&routeid=${routeid}`);
         
-        // Zpracování zastávek a označení technických waypointů vs. veřejných bodů
         if (data && data.Routes && data.Routes.length > 0) {
             data.Routes[0].Stops.forEach(stop => {
                 const name = manualStops[stop.StopId] || jmkStops[stop.StopId];
-                
                 stop.HasName = !!name;
                 stop.StopName = name ? name : `Zastávka ID: ${stop.StopId}`;
-                
-                // Do JŘ propustíme zastávku pokud ji známe jménem, NEBO pokud je veřejná
                 stop.IsVisible = stop.HasName || stop.IsPublic === true;
             });
         }
