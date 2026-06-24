@@ -523,5 +523,23 @@ app.get('/vdv/detail', async (req, res) => {
     }
 });
 
+// --- 12. ENDPOINT PRO VDV (Jízdní řád) ---
+app.get('/vdv/timetable', async (req, res) => {
+    try {
+        const { id } = req.query;
+        if (!id) return res.status(400).send("Chybí ID");
+
+        const targetUrl = `https://mapavdv.kr-vysocina.cz/Ajax/GetTimetable?vehicleNumber=${id}&currentStopId=0&t=${Date.now()}`;
+        const response = await fetch(targetUrl);
+        if (!response.ok) throw new Error("VDV Timetable API selhalo");
+        
+        const html = await response.text();
+        res.send(html);
+    } catch (err) {
+        console.error("Chyba VDV Timetable:", err.message);
+        res.status(500).send("Chyba při stahování VDV JŘ");
+    }
+});
+
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => console.log(`GRAPP Můstek naslouchá na portu ${PORT}`));
