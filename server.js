@@ -343,18 +343,6 @@ async function refreshJmkToken() {
     }
 }
 
-// =========================================================
-// DIAGNOSTICKÝ ENDPOINT
-// =========================================================
-app.get('/idsjmk-debug', (req, res) => {
-    res.json({
-        aktualni_status: jmkGtfsStatus,
-        celkovy_pocet_zastavek: Object.keys(jmkStops).length,
-        test_vyhledani_id_17423: jmkStops['17423'] || "ID 17423 ve slovníku chybí!",
-        ukazka_prvnich_50_zastavek: Object.entries(jmkStops).slice(0, 50)
-    });
-});
-
 // --- POMOCNÁ FUNKCE PRO VOLÁNÍ API JMK (S Auto-Healingem) ---
 async function fetchJmkApi(url) {
     let options = {
