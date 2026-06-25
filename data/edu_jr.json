@@ -1,0 +1,1460 @@
+[
+  {
+    "Stařeč,nám.":"49.1972047,15.8266067",
+    "Třebíč,Za Rybníkem":"49.2051544,15.8453131",
+    "Třebíč,Borovina,BOPO":"49.2073964,15.8524253",
+    "Třebíč,Borovina,Pražská":"49.2100028,15.8584872",
+    "Třebíč,u aut.nádr.":"49.2141953,15.8756761",
+    "Třebíč,Marie Majerové":"49.2221414,15.8826789",
+    "Třebíč,Na Holečku":"49.2257958,15.8763639",
+    "Třebíč,Sýpky":"49.2202186,15.8693581",
+    "Třebíč,Gen.Svobody":"49.2237969,15.8852444",
+    "Třebíč,Míčova":"49.2247467,15.8893222",
+    "Třebíč,U Pekárny":"49.2226639,15.8942403",
+    "Třebíč,ZŠ Na Kopcích":"49.2179794,15.9012117",
+    "Třebíč,Dřevařské závody":"49.2178956,15.8920803",
+    "Třebíč,Hrotovická":"49.2104264,15.8931608",
+    "Třebíč,Poliklinika Hájek":"49.2201958,15.8856078",
+    "Třebíč,Hotel Atom":"49.2186928,15.8908319",
+    "Třebíč,Kaufland":"49.2156486,15.8948344",
+    "Třebíč,Cyrilometodějská":"49.2149161,15.8901500",
+    "Třebíč,Račerovická":"49.2206611,15.8672906",
+    "Třebíč,aut.nádr.":"49.2146761,15.8761675",
+    "Třebíč,nemocnice":"49.2118758,15.8885611",
+    "Třebíč,U Lípy":"49.2079506,15.8951911",
+    "Třebíč,Znojemská":"49.2069053,15.8860750",
+    "Slavičky,Okrašovice,rozc.":"49.1836472,15.9487086",
+    "Slavičky":"49.1763878,15.9698458",
+    "Dolní Vilémovice,rozc.":"49.1731261,15.9810306",
+    "Třebenice,hl. sil.":"49.1605122,16.0144078",
+    "Valeč":"49.1479989,16.0377864",
+    "Dalešice,rozc.":"49.1252594,16.0739042",
+    "Slavětice":"49.1035461,16.1067925",
+    "Dukovany,EDU":"49.0897942,16.1455822"
+  },
+  {
+    "linka": "2",
+    "spoj": null,
+    "provoz": "X",
+    "zastavky": {
+      "Třebíč,Sýpky": "4:40",
+      "Třebíč,Na Holečku": "4:42",
+      "Třebíč,Marie Majerové": "4:44",
+      "Třebíč,Gen.Svobody": "4:45",
+      "Třebíč,Míčova": "4:47",
+      "Slavičky,Okrašovice,rozc.": "4:57",
+      "Slavětice": "5:12",
+      "Dukovany,EDU": "5:17"
+    }
+  },
+  {
+    "linka": "2",
+    "spoj": null,
+    "provoz": "6,7",
+    "zastavky": {
+      "Třebíč,Sýpky": "4:40",
+      "Třebíč,Na Holečku": "4:42",
+      "Třebíč,Marie Majerové": "4:44",
+      "Třebíč,Gen.Svobody": "4:46",
+      "Třebíč,Míčova": "4:47",
+      "Třebíč,Dřevařské závody": "4:49",
+      "Třebíč,Kaufland": "4:51",
+      "Třebíč,U Lípy": "4:54",
+      "Slavičky,Okrašovice,rozc.": "4:57",
+      "Slavičky": "4:59",
+      "Dolní Vilémovice,rozc.": "5:01",
+      "Třebenice,hl. sil.": "5:03",
+      "Slavětice": "5:12",
+      "Dukovany,EDU": "5:17"
+    }
+  },
+  {
+    "linka": "3",
+    "spoj": null,
+    "provoz": "6,7",
+    "zastavky": {
+      "Třebíč,Za Rybníkem": "4:40",
+      "Třebíč,Borovina,BOPO": "4:41",
+      "Třebíč,Borovina,Pražská": "4:42",
+      "Třebíč,u aut.nádr.": "4:43",
+      "Třebíč,nemocnice": "4:45",
+      "Třebíč,Znojemská": "4:48",
+      "Valeč": "5:03",
+      "Dalešice,rozc.": "5:05",
+      "Slavětice": "5:12",
+      "Dukovany,EDU": "5:19"
+    }
+  },
+  {
+    "linka": "5",
+    "spoj": null,
+    "provoz": "X",
+    "zastavky": {
+      "Třebíč,Za Rybníkem": "4:40",
+      "Třebíč,Borovina,BOPO": "4:41",
+      "Třebíč,Borovina,Pražská": "4:42",
+      "Třebíč,u aut.nádr.": "4:43",
+      "Třebíč,nemocnice": "4:45",
+      "Třebíč,Znojemská": "4:49",
+      "Valeč": "5:03",
+      "Dalešice,rozc.": "5:05",
+      "Slavětice": "5:12",
+      "Dukovany,EDU": "5:19"
+    }
+  },
+  {
+    "linka": "1",
+    "spoj": null,
+    "provoz": "X",
+    "zastavky": {
+      "Třebíč,ZŠ Na Kopcích": "4:42",
+      "Třebíč,Dřevařské závody": "4:45",
+      "Třebíč,Kaufland": "4:47",
+      "Třebíč,U Lípy": "4:51",
+      "Slavičky": "4:57",
+      "Dolní Vilémovice,rozc.": "4:59",
+      "Třebenice,hl. sil.": "5:01",
+      "Dalešice,rozc.": "5:07",
+      "Slavětice": "5:12",
+      "Dukovany,EDU": "5:19"
+    }
+  },
+  {
+    "linka": "11",
+    "spoj": null,
+    "provoz": "X",
+    "zastavky": {
+      "Třebíč,Za Rybníkem": "4:45",
+      "Dukovany,EDU": "5:19"
+    }
+  },
+  {
+    "linka": "19",
+    "spoj": null,
+    "provoz": "X",
+    "zastavky": {
+      "Stařeč,nám.": "5:10",
+      "Třebíč,Za Rybníkem": "5:15",
+      "Třebíč,Borovina,BOPO": "5:16",
+      "Třebíč,Borovina,Pražská": "5:18",
+      "Třebíč,u aut.nádr.": "5:20",
+      "Třebíč,nemocnice": "5:22",
+      "Třebíč,U Lípy": "5:25",
+      "Dalešice,rozc.": "5:38",
+      "Slavětice": "5:42",
+      "Dukovany,EDU": "5:50"
+    }
+  },
+  {
+    "linka": "20",
+    "spoj": null,
+    "provoz": "X",
+    "zastavky": {
+      "Třebíč,Míčova": "5:10",
+      "Třebíč,Dřevařské závody": "5:12",
+      "Třebíč,Cyrilometodějská": "5:14",
+      "Třebíč,Znojemská": "5:17",
+      "Slavičky,Okrašovice,rozc.": "5:26",
+      "Slavičky": "5:27",
+      "Třebenice,hl. sil.": "5:32",
+      "Slavětice": "5:42",
+      "Dukovany,EDU": "5:50"
+    }
+  },
+  {
+    "linka": "9",
+    "spoj": null,
+    "provoz": "X",
+    "zastavky": {
+      "Třebíč,Marie Majerové": "5:15",
+      "Třebíč,Na Holečku": "5:16",
+      "Třebíč,Sýpky": "5:17",
+      "Třebíč,U Lípy": "5:24",
+      "Dolní Vilémovice,rozc.": "5:28",
+      "Slavětice": "5:40",
+      "Dukovany,EDU": "5:52"
+    }
+  },
+  {
+    "linka": "4",
+    "spoj": null,
+    "provoz": "X",
+    "zastavky": {
+      "Třebíč,Hotel Atom": "5:15",
+      "Třebíč,ZŠ Na Kopcích": "5:17",
+      "Třebíč,Kaufland": "5:19",
+      "Třebíč,U Lípy": "5:22",
+      "Valeč": "5:35",
+      "Dukovany,EDU": "5:53"
+    }
+  },
+  {
+    "linka": "18",
+    "spoj": null,
+    "provoz": "X",
+    "zastavky": {
+      "Stařeč,nám.": "5:20",
+      "Třebíč,Za Rybníkem": "5:25",
+      "Třebíč,Borovina,BOPO": "5:26",
+      "Třebíč,Borovina,Pražská": "5:27",
+      "Třebíč,u aut.nádr.": "5:29",
+      "Třebíč,nemocnice": "5:32",
+      "Třebenice,hl. sil.": "5:45",
+      "Dukovany,EDU": "6:00"
+    }
+  },
+  {
+    "linka": "6",
+    "spoj": null,
+    "provoz": "X",
+    "zastavky": {
+      "Třebíč,Míčova": "5:25",
+      "Třebíč,Dřevařské závody": "5:27",
+      "Třebíč,Kaufland": "5:29",
+      "Třebíč,U Lípy": "5:33",
+      "Dukovany,EDU": "6:00"
+    }
+  },
+  {
+    "linka": "15",
+    "spoj": null,
+    "provoz": "X",
+    "zastavky": {
+      "Třebíč,Za Rybníkem": "5:35",
+      "Třebíč,Borovina,Pražská": "5:37",
+      "Třebíč,u aut.nádr.": "5:39",
+      "Třebíč,nemocnice": "5:42",
+      "Třebíč,Znojemská": "5:45",
+      "Třebenice,hl. sil.": "5:55",
+      "Dalešice,rozc.": "6:00",
+      "Slavětice": "6:05",
+      "Dukovany,EDU": "6:15"
+    }
+  },
+  {
+    "linka": "14",
+    "spoj": null,
+    "provoz": "X",
+    "zastavky": {
+      "Třebíč,Račerovická": "5:40",
+      "Třebíč,Znojemská": "5:47",
+      "Třebenice,hl. sil.": "5:53",
+      "Valeč": "5:58",
+      "Slavětice": "6:07",
+      "Dukovany,EDU": "6:15"
+    }
+  },
+  {
+    "linka": "17",
+    "spoj": null,
+    "provoz": "X",
+    "zastavky": {
+      "Třebíč,Hotel Atom": "5:40",
+      "Třebíč,ZŠ Na Kopcích": "5:42",
+      "Slavětice": "6:02",
+      "Dukovany,EDU": "6:12"
+    }
+  },
+  {
+    "linka": "12",
+    "spoj": null,
+    "provoz": "X",
+    "zastavky": {
+      "Třebíč,Dřevařské závody": "5:45",
+      "Třebíč,Kaufland": "5:47",
+      "Třebíč,U Lípy": "5:50",
+      "Dukovany,EDU": "6:20"
+    }
+  },
+  {
+    "linka": "13",
+    "spoj": null,
+    "provoz": "X",
+    "zastavky": {
+      "Třebíč,Gen.Svobody": "5:45",
+      "Třebíč,Dřevařské závody": "5:47",
+      "Třebíč,Kaufland": "5:49",
+      "Slavětice": "6:12",
+      "Dukovany,EDU": "6:20"
+    }
+  },
+  {
+    "linka": "22",
+    "spoj": null,
+    "provoz": "X",
+    "zastavky": {
+      "Třebíč,Míčova": "5:45",
+      "Třebíč,U Pekárny": "5:46",
+      "Slavičky,Okrašovice,rozc.": "5:56",
+      "Dukovany,EDU": "6:20"
+    }
+  },
+  {
+    "linka": "23",
+    "spoj": "1",
+    "provoz": "X",
+    "zastavky": {
+      "Třebíč,Marie Majerové": "5:45",
+      "Třebíč,Na Holečku": "5:46",
+      "Třebíč,Sýpky": "5:48",
+      "Třebíč,U Lípy": "5:52",
+      "Slavětice": "6:16",
+      "Dukovany,EDU": "6:22"
+    }
+  },
+  {
+    "linka": "25",
+    "spoj": null,
+    "provoz": "X",
+    "zastavky": {
+      "Třebíč,Za Rybníkem": "5:45",
+      "Třebíč,Borovina,BOPO": "5:46",
+      "Třebíč,Borovina,Pražská": "5:48",
+      "Třebíč,u aut.nádr.": "5:50",
+      "Třebíč,nemocnice": "5:52",
+      "Slavičky": "5:59",
+      "Dolní Vilémovice,rozc.": "6:00",
+      "Třebenice,hl. sil.": "6:04",
+      "Dalešice,rozc.": "6:08",
+      "Slavětice": "6:12",
+      "Dukovany,EDU": "6:20"
+    }
+  },
+  {
+    "linka": "5",
+    "spoj": null,
+    "provoz": "X",
+    "zastavky": {
+      "Třebíč,Za Rybníkem": "6:15",
+      "Třebíč,Borovina,BOPO": "6:16",
+      "Třebíč,Borovina,Pražská": "6:17",
+      "Třebíč,u aut.nádr.": "6:18",
+      "Třebíč,nemocnice": "6:20",
+      "Třebíč,Znojemská": "6:24",
+      "Valeč": "6:35",
+      "Dalešice,rozc.": "6:37",
+      "Slavětice": "6:42",
+      "Dukovany,EDU": "6:50"
+    }
+  },
+  {
+    "linka": "10",
+    "spoj": null,
+    "provoz": "X",
+    "zastavky": {
+      "Třebíč,Sýpky": "6:15",
+      "Třebíč,Na Holečku": "6:16",
+      "Třebíč,Marie Majerové": "6:17",
+      "Třebíč,Gen.Svobody": "6:18",
+      "Třebíč,Míčova": "6:21",
+      "Třebíč,Dřevařské závody": "6:23",
+      "Třebíč,Kaufland": "6:25",
+      "Třebíč,U Lípy": "6:29",
+      "Slavičky": "6:34",
+      "Dolní Vilémovice,rozc.": "6:35",
+      "Třebenice,hl. sil.": "6:38",
+      "Dukovany,EDU": "6:52"
+    }
+  },
+  {
+    "linka": "4",
+    "spoj": null,
+    "provoz": "X,O",
+    "zastavky": {
+      "Třebíč,Za Rybníkem": "7:05",
+      "Třebíč,Borovina,Pražská": "7:07",
+      "Třebíč,u aut.nádr.": "7:08",
+      "Třebíč,Sýpky": "7:12",
+      "Třebíč,Na Holečku": "7:14",
+      "Třebíč,Marie Majerové": "7:15",
+      "Třebíč,Míčova": "7:16",
+      "Třebíč,Dřevařské závody": "7:18",
+      "Třebíč,Kaufland": "7:20",
+      "Třebíč,U Lípy": "7:22",
+      "Slavičky": "7:26",
+      "Dolní Vilémovice,rozc.": "7:27",
+      "Třebenice,hl. sil.": "7:29",
+      "Valeč": "7:34",
+      "Dalešice,rozc.": "7:38",
+      "Slavětice": "7:43",
+      "Dukovany,EDU": "7:52"
+    }
+  },
+  {
+    "linka": "6",
+    "spoj": null,
+    "provoz": "X,O",
+    "zastavky": {
+      "Třebíč,Za Rybníkem": "8:05",
+      "Třebíč,Borovina,Pražská": "8:07",
+      "Třebíč,u aut.nádr.": "8:08",
+      "Třebíč,Sýpky": "8:12",
+      "Třebíč,Na Holečku": "8:13",
+      "Třebíč,Míčova": "8:15",
+      "Třebíč,Dřevařské závody": "8:17",
+      "Třebíč,Kaufland": "8:19",
+      "Třebíč,U Lípy": "8:22",
+      "Slavičky,Okrašovice,rozc.": "8:24",
+      "Slavičky": "8:25",
+      "Dolní Vilémovice,rozc.": "8:26",
+      "Třebenice,hl. sil.": "8:28",
+      "Valeč": "8:33",
+      "Dalešice,rozc.": "8:37",
+      "Slavětice": "8:42",
+      "Dukovany,EDU": "8:52"
+    }
+  },
+  {
+    "linka": "7",
+    "spoj": null,
+    "provoz": "X,O",
+    "zastavky": {
+      "Třebíč,Za Rybníkem": "9:05",
+      "Třebíč,Borovina,Pražská": "9:07",
+      "Třebíč,u aut.nádr.": "9:08",
+      "Třebíč,Sýpky": "9:12",
+      "Třebíč,Na Holečku": "9:13",
+      "Třebíč,Míčova": "9:15",
+      "Třebíč,Dřevařské závody": "9:17",
+      "Třebíč,Kaufland": "9:19",
+      "Třebíč,U Lípy": "9:22",
+      "Slavičky": "9:25",
+      "Dolní Vilémovice,rozc.": "9:26",
+      "Třebenice,hl. sil.": "9:28",
+      "Valeč": "9:33",
+      "Dalešice,rozc.": "9:37",
+      "Slavětice": "9:42",
+      "Dukovany,EDU": "9:52"
+    }
+  },
+  {
+    "linka": "18",
+    "spoj": null,
+    "provoz": "X,O",
+    "zastavky": {
+      "Třebíč,Za Rybníkem": "10:05",
+      "Třebíč,Borovina,Pražská": "10:07",
+      "Třebíč,u aut.nádr.": "10:08",
+      "Třebíč,Sýpky": "10:10",
+      "Třebíč,Na Holečku": "10:12",
+      "Třebíč,Míčova": "10:15",
+      "Třebíč,Dřevařské závody": "10:17",
+      "Třebíč,Kaufland": "10:19",
+      "Třebíč,Znojemská": "10:22",
+      "Slavičky,Okrašovice,rozc.": "10:24",
+      "Slavičky": "10:25",
+      "Dolní Vilémovice,rozc.": "10:26",
+      "Třebenice,hl. sil.": "10:27",
+      "Valeč": "10:33",
+      "Dalešice,rozc.": "10:37",
+      "Slavětice": "10:42",
+      "Dukovany,EDU": "10:52"
+    }
+  },
+  {
+    "linka": "2",
+    "spoj": null,
+    "provoz": "1-7,O",
+    "zastavky": {
+      "Třebíč,Sýpky": "12:40",
+      "Třebíč,Na Holečku": "12:42",
+      "Třebíč,Marie Majerové": "12:44",
+      "Třebíč,Gen.Svobody": "12:46",
+      "Třebíč,Míčova": "12:47",
+      "Třebíč,Dřevařské závody": "12:49",
+      "Třebíč,Kaufland": "12:51",
+      "Třebíč,U Lípy": "12:54",
+      "Slavičky,Okrašovice,rozc.": "12:57",
+      "Slavičky": "12:59",
+      "Dolní Vilémovice,rozc.": "13:01",
+      "Třebenice,hl. sil.": "13:03",
+      "Slavětice": "13:12",
+      "Dukovany,EDU": "13:19"
+    }
+  },
+  {
+    "linka": "3",
+    "spoj": null,
+    "provoz": "6-7,O",
+    "zastavky": {
+      "Třebíč,Za Rybníkem": "12:40",
+      "Třebíč,Borovina,BOPO": "12:41",
+      "Třebíč,Borovina,Pražská": "12:42",
+      "Třebíč,u aut.nádr.": "12:43",
+      "Třebíč,nemocnice": "12:46",
+      "Třebíč,Znojemská": "12:49",
+      "Valeč": "13:03",
+      "Dalešice,rozc.": "13:05",
+      "Slavětice": "13:12",
+      "Dukovany,EDU": "13:19"
+    }
+  },
+  {
+    "linka": "19",
+    "spoj": null,
+    "provoz": "X,O",
+    "zastavky": {
+      "Třebíč,Za Rybníkem": "12:40",
+      "Třebíč,Borovina,BOPO": "12:41",
+      "Třebíč,Borovina,Pražská": "12:42",
+      "Třebíč,u aut.nádr.": "12:43",
+      "Třebíč,nemocnice": "12:45",
+      "Třebíč,Znojemská": "12:48",
+      "Valeč": "13:03",
+      "Dalešice,rozc.": "13:05",
+      "Slavětice": "13:12",
+      "Dukovany,EDU": "13:19"
+    }
+  },
+  {
+    "linka": "11",
+    "spoj": null,
+    "provoz": "1-4",
+    "zastavky": {
+      "Třebíč,u aut.nádr.": "14:35",
+      "Třebíč,nemocnice": "14:40",
+      "Dukovany,EDU": "15:08"
+    }
+  },
+  {
+    "linka": "23",
+    "spoj": "3",
+    "provoz": "1-4,O",
+    "zastavky": {
+      "Třebíč,u aut.nádr.": "15:53",
+      "Třebíč,nemocnice": "15:57",
+      "Třebíč,U Lípy": "15:58",
+      "Slavičky,Okrašovice,rozc.": "16:03",
+      "Slavičky": "16:04",
+      "Dolní Vilémovice,rozc.": "16:05",
+      "Třebenice,hl. sil.": "16:07",
+      "Valeč": "16:10",
+      "Dalešice,rozc.": "16:12",
+      "Slavětice": "16:17",
+      "Dukovany,EDU": "16:25"
+    }
+  },
+  {
+    "linka": "2",
+    "spoj": "7",
+    "provoz": "1-7,O",
+    "zastavky": {
+      "Třebíč,Sýpky": "16:40",
+      "Třebíč,Na Holečku": "16:42",
+      "Třebíč,Marie Majerové": "16:44",
+      "Třebíč,Gen.Svobody": "16:46",
+      "Třebíč,Míčova": "16:47",
+      "Třebíč,Dřevařské závody": "16:49",
+      "Třebíč,Kaufland": "16:51",
+      "Třebíč,U Lípy": "16:54",
+      "Slavičky,Okrašovice,rozc.": "16:57",
+      "Slavičky": "16:59",
+      "Dolní Vilémovice,rozc.": "17:01",
+      "Třebenice,hl. sil.": "17:03",
+      "Slavětice": "17:12",
+      "Dukovany,EDU": "17:19"
+    }
+  },
+  {
+    "linka": "3",
+    "spoj": null,
+    "provoz": "6-7,O",
+    "zastavky": {
+      "Třebíč,Za Rybníkem": "16:40",
+      "Třebíč,Borovina,BOPO": "16:41",
+      "Třebíč,Borovina,Pražská": "16:42",
+      "Třebíč,u aut.nádr.": "16:43",
+      "Třebíč,nemocnice": "16:45",
+      "Třebíč,Znojemská": "16:49",
+      "Valeč": "17:03",
+      "Dalešice,rozc.": "17:05",
+      "Slavětice": "17:12",
+      "Dukovany,EDU": "17:19"
+    }
+  },
+  {
+    "linka": "5",
+    "spoj": "5",
+    "provoz": "X,O",
+    "zastavky": {
+      "Třebíč,Za Rybníkem": "16:40",
+      "Třebíč,Borovina,BOPO": "16:41",
+      "Třebíč,Borovina,Pražská": "16:42",
+      "Třebíč,u aut.nádr.": "16:43",
+      "Třebíč,nemocnice": "16:45",
+      "Třebíč,Znojemská": "16:49",
+      "Valeč": "17:03",
+      "Dalešice,rozc.": "17:05",
+      "Slavětice": "17:12",
+      "Dukovany,EDU": "17:19"
+    }
+  },
+  {
+    "linka": "2",
+    "spoj": null,
+    "provoz": "1-7",
+    "zastavky": {
+      "Třebíč,Sýpky": "20:40",
+      "Třebíč,Na Holečku": "20:42",
+      "Třebíč,Marie Majerové": "20:44",
+      "Třebíč,Gen.Svobody": "20:46",
+      "Třebíč,Míčova": "20:47",
+      "Třebíč,Dřevařské závody": "20:49",
+      "Třebíč,Kaufland": "20:51",
+      "Třebíč,U Lípy": "20:54",
+      "Slavičky,Okrašovice,rozc.": "20:57",
+      "Slavičky": "20:59",
+      "Dolní Vilémovice,rozc.": "21:01",
+      "Třebenice,hl. sil.": "21:03",
+      "Slavětice": "21:12",
+      "Dukovany,EDU": "21:19"
+    }
+  },
+  {
+    "linka": "3",
+    "spoj": null,
+    "provoz": "6-7,O",
+    "zastavky": {
+      "Třebíč,Za Rybníkem": "20:40",
+      "Třebíč,Borovina,BOPO": "20:41",
+      "Třebíč,Borovina,Pražská": "20:42",
+      "Třebíč,u aut.nádr.": "20:43",
+      "Třebíč,nemocnice": "20:45",
+      "Třebíč,Znojemská": "20:49",
+      "Valeč": "21:03",
+      "Dalešice,rozc.": "21:05",
+      "Slavětice": "21:12",
+      "Dukovany,EDU": "21:19"
+    }
+  },
+  {
+    "linka": "5",
+    "spoj": null,
+    "provoz": "X",
+    "zastavky": {
+      "Třebíč,Za Rybníkem": "20:40",
+      "Třebíč,Borovina,BOPO": "20:41",
+      "Třebíč,Borovina,Pražská": "20:42",
+      "Třebíč,u aut.nádr.": "20:43",
+      "Třebíč,nemocnice": "20:45",
+      "Třebíč,Znojemská": "20:49",
+      "Valeč": "21:03",
+      "Dalešice,rozc.": "21:05",
+      "Slavětice": "21:12",
+      "Dukovany,EDU": "21:19"
+    }
+  },
+  {
+    "linka": "5",
+    "spoj": null,
+    "provoz": "X,O",
+    "zastavky": {
+      "Dukovany,EDU": "5:30",
+      "Slavětice": "5:34",
+      "Dalešice,rozc.": "5:38",
+      "Valeč": "5:42",
+      "Třebenice,hl. sil.": "5:45",
+      "Dolní Vilémovice,rozc.": "5:49",
+      "Slavičky": "5:50",
+      "Třebíč,U Lípy": "5:55",
+      "Třebíč,nemocnice": "5:56",
+      "Třebíč,u aut.nádr.": "6:00",
+      "Třebíč,Borovina,BOPO": "6:03",
+      "Třebíč,Za Rybníkem": "6:05"
+    }
+  },
+  {
+    "linka": "2",
+    "spoj": null,
+    "provoz": "1-7,O",
+    "zastavky": {
+      "Dukovany,EDU": "6:05",
+      "Slavětice": "6:10",
+      "Třebenice,hl. sil.": "6:20",
+      "Dolní Vilémovice,rozc.": "6:25",
+      "Slavičky": "6:27",
+      "Slavičky,Okrašovice,rozc.": "6:29",
+      "Třebíč,U Lípy": "6:32",
+      "Třebíč,Kaufland": "6:34",
+      "Třebíč,Dřevařské závody": "6:36",
+      "Třebíč,Míčova": "6:38",
+      "Třebíč,Gen.Svobody": "6:39",
+      "Třebíč,Marie Majerové": "6:41",
+      "Třebíč,Na Holečku": "6:43",
+      "Třebíč,Sýpky": "6:46"
+    }
+  },
+  {
+    "linka": "3",
+    "spoj": null,
+    "provoz": "6,7",
+    "zastavky": {
+      "Dukovany,EDU": "6:05",
+      "Slavětice": "6:09",
+      "Dalešice,rozc.": "6:13",
+      "Valeč": "6:17",
+      "Třebíč,Znojemská": "6:30",
+      "Třebíč,u aut.nádr.": "6:35",
+      "Třebíč,Borovina,Pražská": "6:37",
+      "Třebíč,Za Rybníkem": "6:40"
+    }
+  },
+  {
+    "linka": "19",
+    "spoj": null,
+    "provoz": "X,O",
+    "zastavky": {
+      "Dukovany,EDU": "6:05",
+      "Slavětice": "6:09",
+      "Dalešice,rozc.": "6:13",
+      "Valeč": "6:17",
+      "Třebíč,Znojemská": "6:30",
+      "Třebíč,u aut.nádr.": "6:35",
+      "Třebíč,Borovina,Pražská": "6:37",
+      "Třebíč,Borovina,BOPO": "6:38",
+      "Třebíč,Za Rybníkem": "6:40"
+    }
+  },
+  {
+    "linka": "4",
+    "spoj": null,
+    "provoz": "X,O",
+    "zastavky": {
+      "Dukovany,EDU": "6:25",
+      "Slavětice": "6:29",
+      "Dalešice,rozc.": "6:33",
+      "Třebenice,hl. sil.": "6:38",
+      "Dolní Vilémovice,rozc.": "6:41",
+      "Slavičky": "6:42",
+      "Třebíč,U Lípy": "6:48",
+      "Třebíč,u aut.nádr.": "6:51",
+      "Třebíč,Za Rybníkem": "6:55"
+    }
+  },
+  {
+    "linka": "6",
+    "spoj": null,
+    "provoz": "X,O",
+    "zastavky": {
+      "Dukovany,EDU": "7:05",
+      "Slavětice": "7:09",
+      "Dalešice,rozc.": "7:13",
+      "Valeč": "7:17",
+      "Třebenice,hl. sil.": "7:20",
+      "Dolní Vilémovice,rozc.": "7:24",
+      "Slavičky": "7:25",
+      "Slavičky,Okrašovice,rozc.": "7:26",
+      "Třebíč,Znojemská": "7:30",
+      "Třebíč,nemocnice": "7:32",
+      "Třebíč,aut.nádr.": "7:35",
+      "Třebíč,Sýpky": "7:37",
+      "Třebíč,Na Holečku": "7:38",
+      "Třebíč,Míčova": "7:40",
+      "Třebíč,Dřevařské závody": "7:42",
+      "Třebíč,Za Rybníkem": "7:57"
+    }
+  },
+  {
+    "linka": "7",
+    "spoj": null,
+    "provoz": "X,O",
+    "zastavky": {
+      "Dukovany,EDU": "8:05",
+      "Slavětice": "8:09",
+      "Dalešice,rozc.": "8:13",
+      "Valeč": "8:17",
+      "Třebenice,hl. sil.": "8:20",
+      "Dolní Vilémovice,rozc.": "8:24",
+      "Slavičky": "8:25",
+      "Třebíč,U Lípy": "8:30",
+      "Třebíč,nemocnice": "8:31",
+      "Třebíč,aut.nádr.": "8:35",
+      "Třebíč,Sýpky": "8:37",
+      "Třebíč,Na Holečku": "8:39",
+      "Třebíč,Míčova": "8:41",
+      "Třebíč,Dřevařské závody": "8:43",
+      "Třebíč,Za Rybníkem": "8:52"
+    }
+  },
+  {
+    "linka": "18",
+    "spoj": null,
+    "provoz": "X,O",
+    "zastavky": {
+      "Dukovany,EDU": "9:05",
+      "Slavětice": "9:09",
+      "Dalešice,rozc.": "9:13",
+      "Valeč": "9:17",
+      "Třebenice,hl. sil.": "9:20",
+      "Dolní Vilémovice,rozc.": "9:24",
+      "Slavičky": "9:25",
+      "Třebíč,Znojemská": "9:30",
+      "Třebíč,aut.nádr.": "9:35",
+      "Třebíč,Sýpky": "9:37",
+      "Třebíč,Na Holečku": "9:38",
+      "Třebíč,Míčova": "9:41",
+      "Třebíč,Dřevařské závody": "9:43",
+      "Třebíč,Za Rybníkem": "9:52"
+    }
+  },
+  {
+    "linka": "23",
+    "spoj": "2",
+    "provoz": "X,O",
+    "zastavky": {
+      "Dukovany,EDU": "10:45",
+      "Slavětice": "10:49",
+      "Dalešice,rozc.": "10:53",
+      "Valeč": "10:57",
+      "Třebenice,hl. sil.": "11:00",
+      "Dolní Vilémovice,rozc.": "11:02",
+      "Slavičky": "11:04",
+      "Třebíč,U Lípy": "11:10",
+      "Třebíč,Kaufland": "11:13",
+      "Třebíč,Dřevařské závody": "11:15",
+      "Třebíč,Míčova": "11:17",
+      "Třebíč,Gen.Svobody": "11:18",
+      "Třebíč,Marie Majerové": "11:19",
+      "Třebíč,Na Holečku": "11:20",
+      "Třebíč,Sýpky": "11:22",
+      "Třebíč,u aut.nádr.": "11:24",
+      "Třebíč,Borovina,Pražská": "11:27",
+      "Třebíč,Za Rybníkem": "11:30"
+    }
+  },
+  {
+    "linka": "4",
+    "spoj": null,
+    "provoz": "5,O",
+    "zastavky": {
+      "Dukovany,EDU": "12:10",
+      "Slavětice": "12:14",
+      "Třebíč,U Lípy": "12:35",
+      "Třebíč,Kaufland": "12:40",
+      "Třebíč,Dřevařské závody": "12:42",
+      "Třebíč,Míčova": "12:44",
+      "Třebíč,Gen.Svobody": "12:45",
+      "Třebíč,Marie Majerové": "12:46",
+      "Třebíč,Na Holečku": "12:47",
+      "Třebíč,Sýpky": "12:49"
+    }
+  },
+  {
+    "linka": "6",
+    "spoj": null,
+    "provoz": "1-4,O",
+    "zastavky": {
+      "Dukovany,EDU": "12:10",
+      "Slavětice": "12:14",
+      "Dalešice,rozc.": "12:20",
+      "Valeč": "12:24",
+      "Třebenice,hl. sil.": "12:27",
+      "Dolní Vilémovice,rozc.": "12:30",
+      "Slavičky": "12:32",
+      "Třebíč,U Lípy": "12:37",
+      "Třebíč,Hrotovická": "12:38",
+      "Třebíč,Dřevařské závody": "12:42",
+      "Třebíč,Míčova": "12:43",
+      "Třebíč,Gen.Svobody": "12:44",
+      "Třebíč,Marie Majerové": "12:45",
+      "Třebíč,Na Holečku": "12:46",
+      "Třebíč,Sýpky": "12:50",
+      "Třebíč,aut.nádr.": "12:54",
+      "Třebíč,Za Rybníkem": "13:10"
+    }
+  },
+  {
+    "linka": "6",
+    "spoj": null,
+    "provoz": "5,O",
+    "zastavky": {
+      "Dukovany,EDU": "12:10",
+      "Slavětice": "12:14",
+      "Dalešice,rozc.": "12:20",
+      "Valeč": "12:24",
+      "Třebenice,hl. sil.": "12:27",
+      "Dolní Vilémovice,rozc.": "12:30",
+      "Slavičky": "12:32",
+      "Třebíč,U Lípy": "12:37",
+      "Třebíč,nemocnice": "12:39",
+      "Třebíč,u aut.nádr.": "12:44",
+      "Třebíč,Borovina,Pražská": "12:46",
+      "Třebíč,Za Rybníkem": "12:49"
+    }
+  },
+  {
+    "linka": "9",
+    "spoj": null,
+    "provoz": "5",
+    "zastavky": {
+      "Dukovany,EDU": "12:45",
+      "Třebíč,U Lípy": "13:10",
+      "Třebíč,Kaufland": "13:15",
+      "Třebíč,Dřevařské závody": "13:17",
+      "Třebíč,Míčova": "13:19",
+      "Třebíč,Gen.Svobody": "13:20"
+    }
+  },
+  {
+    "linka": "10",
+    "spoj": null,
+    "provoz": "5",
+    "zastavky": {
+      "Dukovany,EDU": "12:45",
+      "Valeč": "12:57",
+      "Třebenice,hl. sil.": "13:00",
+      "Dolní Vilémovice,rozc.": "13:04",
+      "Slavičky": "13:05",
+      "Slavičky,Okrašovice,rozc.": "13:06",
+      "Třebíč,u aut.nádr.": "13:15"
+    }
+  },
+  {
+    "linka": "15",
+    "spoj": null,
+    "provoz": "5",
+    "zastavky": {
+      "Dukovany,EDU": "12:45",
+      "Slavětice": "12:49",
+      "Třebíč,ZŠ Na Kopcích": "13:14",
+      "Třebíč,Hotel Atom": "13:16",
+      "Třebíč,Poliklinika Hájek": "13:18",
+      "Třebíč,Marie Majerové": "13:19",
+      "Třebíč,Na Holečku": "13:20",
+      "Třebíč,Sýpky": "13:21",
+      "Třebíč,aut.nádr.": "13:24"
+    }
+  },
+  {
+    "linka": "17",
+    "spoj": null,
+    "provoz": "5",
+    "zastavky": {
+      "Dukovany,EDU": "12:45",
+      "Dalešice,rozc.": "12:53",
+      "Třebíč,nemocnice": "13:10",
+      "Třebíč,u aut.nádr.": "13:15",
+      "Třebíč,Borovina,Pražská": "13:17",
+      "Třebíč,Borovina,BOPO": "13:18",
+      "Třebíč,Za Rybníkem": "13:20",
+      "Stařeč,nám.": "13:25"
+    }
+  },
+  {
+    "linka": "18",
+    "spoj": null,
+    "provoz": "5",
+    "zastavky": {
+      "Dukovany,EDU": "12:45",
+      "Třebíč,nemocnice": "13:12",
+      "Třebíč,aut.nádr.": "13:17",
+      "Třebíč,Sýpky": "13:18",
+      "Třebíč,Míčova": "13:20"
+    }
+  },
+  {
+    "linka": "20",
+    "spoj": null,
+    "provoz": "5",
+    "zastavky": {
+      "Dukovany,EDU": "12:45",
+      "Slavětice": "12:49",
+      "Třebíč,Znojemská": "13:10",
+      "Třebíč,u aut.nádr.": "13:15",
+      "Třebíč,Borovina,Pražská": "13:17",
+      "Třebíč,Borovina,BOPO": "13:18",
+      "Třebíč,Za Rybníkem": "13:20"
+    }
+  },
+  {
+    "linka": "14",
+    "spoj": null,
+    "provoz": "5",
+    "zastavky": {
+      "Dukovany,EDU": "13:05",
+      "Slavětice": "13:09",
+      "Třebíč,U Lípy": "13:30",
+      "Třebíč,Kaufland": "13:33",
+      "Třebíč,Dřevařské závody": "13:35",
+      "Třebíč,Míčova": "13:37",
+      "Třebíč,Gen.Svobody": "13:38",
+      "Třebíč,Marie Majerové": "13:39",
+      "Třebíč,Na Holečku": "13:40",
+      "Třebíč,Sýpky": "13:41",
+      "Třebíč,u aut.nádr.": "13:43",
+      "Třebíč,Za Rybníkem": "13:47"
+    }
+  },
+  {
+    "linka": "2",
+    "spoj": null,
+    "provoz": "X,6,7",
+    "zastavky": {
+      "Dukovany,EDU": "14:05",
+      "Slavětice": "14:10",
+      "Třebenice,hl. sil.": "14:20",
+      "Dolní Vilémovice,rozc.": "12:25",
+      "Slavičky": "12:27",
+      "Slavičky,Okrašovice,rozc.": "14:29",
+      "Třebíč,U Lípy": "14:32",
+      "Třebíč,Kaufland": "14:34",
+      "Třebíč,Dřevařské závody": "14:35",
+      "Třebíč,Míčova": "14:38",
+      "Třebíč,Gen.Svobody": "14:39",
+      "Třebíč,Marie Majerové": "14:41",
+      "Třebíč,Na Holečku": "14:43",
+      "Třebíč,Sýpky": "14:46"
+    }
+  },
+  {
+    "linka": "3",
+    "spoj": null,
+    "provoz": "6,7",
+    "zastavky": {
+      "Dukovany,EDU": "14:05",
+      "Slavětice": "14:09",
+      "Dalešice,rozc.": "14:13",
+      "Valeč": "14:17",
+      "Třebíč,Znojemská": "14:30",
+      "Třebíč,u aut.nádr.": "14:35",
+      "Třebíč,Borovina,Pražská": "14:37",
+      "Třebíč,Za Rybníkem": "14:40"
+    }
+  },
+  {
+    "linka": "5",
+    "spoj": null,
+    "provoz": "X",
+    "zastavky": {
+      "Dukovany,EDU": "14:05",
+      "Dalešice,rozc.": "14:13",
+      "Třebíč,Znojemská": "14:30",
+      "Třebíč,u aut.nádr.": "14:35",
+      "Třebíč,Borovina,Pražská": "14:37",
+      "Třebíč,Borovina,BOPO": "14:38",
+      "Třebíč,Za Rybníkem": "14:40"
+    }
+  },
+  {
+    "linka": "11",
+    "spoj": null,
+    "provoz": "1-4",
+    "zastavky": {
+      "Dukovany,EDU": "14:05",
+      "Třebíč,U Lípy": "14:25",
+      "Třebíč,nemocnice": "14:26",
+      "Třebíč,aut.nádr.": "14:35"
+    }
+  },
+  {
+    "linka": "1",
+    "spoj": null,
+    "provoz": "X",
+    "zastavky": {
+      "Dukovany,EDU": "14:10",
+      "Třebíč,Kaufland": "14:40",
+      "Třebíč,Hotel Atom": "14:42",
+      "Třebíč,Poliklinika Hájek": "14:43",
+      "Třebíč,Marie Majerové": "14:44",
+      "Třebíč,Na Holečku": "14:45"
+    }
+  },
+  {
+    "linka": "19",
+    "spoj": null,
+    "provoz": "5",
+    "zastavky": {
+      "Dukovany,EDU": "14:10",
+      "Slavětice": "14:19",
+      "Dalešice,rozc.": "14:23",
+      "Valeč": "14:26",
+      "Třebíč,Znojemská": "14:30",
+      "Třebíč,nemocnice": "14:35",
+      "Třebíč,u aut.nádr.": "14:40",
+      "Třebíč,Borovina,Pražská": "14:42",
+      "Třebíč,Za Rybníkem": "14:45",
+      "Stařeč,nám.": "14:50"
+    }
+  },
+  {
+    "linka": "4",
+    "spoj": null,
+    "provoz": "1-4",
+    "zastavky": {
+      "Dukovany,EDU": "14:15",
+      "Slavětice": "14:19",
+      "Dalešice,rozc.": "14:25",
+      "Valeč": "14:29",
+      "Třebíč,Znojemská": "14:43",
+      "Třebíč,u aut.nádr.": "14:47",
+      "Třebíč,Borovina,Pražská": "14:50",
+      "Třebíč,Za Rybníkem": "14:52",
+      "Stařeč,nám.": "14:55"
+    }
+  },
+  {
+    "linka": "14",
+    "spoj": null,
+    "provoz": "1-4",
+    "zastavky": {
+      "Dukovany,EDU": "14:15",
+      "Slavětice": "14:19",
+      "Třebenice,hl. sil.": "14:30",
+      "Dolní Vilémovice,rozc.": "14:33",
+      "Slavičky": "14:34",
+      "Slavičky,Okrašovice,rozc.": "14:36",
+      "Třebíč,Míčova": "14:44",
+      "Třebíč,Gen.Svobody": "14:45",
+      "Třebíč,Marie Majerové": "14:47",
+      "Třebíč,Sýpky": "14:50"
+    }
+  },
+  {
+    "linka": "19",
+    "spoj": "6",
+    "provoz": "1-4",
+    "zastavky": {
+      "Dukovany,EDU": "15:10",
+      "Slavětice": "15:14",
+      "Dalešice,rozc.": "15:18",
+      "Třebíč,nemocnice": "15:35",
+      "Třebíč,u aut.nádr.": "15:40",
+      "Třebíč,Borovina,Pražská": "15:42",
+      "Třebíč,Za Rybníkem": "15:45",
+      "Stařeč,nám.": "15:50"
+    }
+  },
+  {
+    "linka": "20",
+    "spoj": "6",
+    "provoz": "1-4",
+    "zastavky": {
+      "Dukovany,EDU": "15:10",
+      "Třebíč,U Lípy": "15:35",
+      "Třebíč,Kaufland": "15:40",
+      "Třebíč,Dřevařské závody": "15:42",
+      "Třebíč,Míčova": "15:44",
+      "Třebíč,Gen.Svobody": "15:45"
+    }
+  },
+  {
+    "linka": "9",
+    "spoj": "6",
+    "provoz": "1-4",
+    "zastavky": {
+      "Dukovany,EDU": "15:15",
+      "Třebíč,U Lípy": "15:40",
+      "Třebíč,Kaufland": "15:45",
+      "Třebíč,Dřevařské závody": "15:47",
+      "Třebíč,Míčova": "15:49",
+      "Třebíč,Gen.Svobody": "15:50"
+    }
+  },
+  {
+    "linka": "10",
+    "spoj": "4",
+    "provoz": "1-4",
+    "zastavky": {
+      "Dukovany,EDU": "15:15",
+      "Valeč": "15:27",
+      "Třebenice,hl. sil.": "15:30",
+      "Dolní Vilémovice,rozc.": "15:34",
+      "Slavičky": "15:35",
+      "Slavičky,Okrašovice,rozc.": "15:36",
+      "Třebíč,u aut.nádr.": "15:45"
+    }
+  },
+  {
+    "linka": "13",
+    "spoj": null,
+    "provoz": "5,O",
+    "zastavky": {
+      "Dukovany,EDU": "15:15",
+      "Slavětice": "15:19",
+      "Dalešice,rozc.": "15:23",
+      "Valeč": "15:27",
+      "Slavičky": "15:35",
+      "Třebíč,Znojemská": "15:40",
+      "Třebíč,u aut.nádr.": "15:45",
+      "Třebíč,Borovina,Pražská": "15:47",
+      "Třebíč,Borovina,BOPO": "15:48",
+      "Třebíč,Za Rybníkem": "15:50"
+    }
+  },
+  {
+    "linka": "15",
+    "spoj": null,
+    "provoz": "1-4",
+    "zastavky": {
+      "Dukovany,EDU": "15:15",
+      "Slavětice": "15:19",
+      "Třebíč,ZŠ Na Kopcích": "15:44",
+      "Třebíč,Hotel Atom": "15:46",
+      "Třebíč,Poliklinika Hájek": "15:48",
+      "Třebíč,Marie Majerové": "15:49",
+      "Třebíč,Na Holečku": "15:50",
+      "Třebíč,Sýpky": "15:51",
+      "Třebíč,aut.nádr.": "15:54"
+    }
+  },
+  {
+    "linka": "17",
+    "spoj": null,
+    "provoz": "1-4",
+    "zastavky": {
+      "Dukovany,EDU": "15:15",
+      "Dalešice,rozc.": "15:23",
+      "Třebíč,nemocnice": "15:40",
+      "Třebíč,u aut.nádr.": "15:45",
+      "Třebíč,Borovina,Pražská": "15:47",
+      "Třebíč,Borovina,BOPO": "15:48",
+      "Třebíč,Za Rybníkem": "15:50"
+    }
+  },
+  {
+    "linka": "18",
+    "spoj": "6",
+    "provoz": "1-4",
+    "zastavky": {
+      "Dukovany,EDU": "15:15",
+      "Třebíč,nemocnice": "15:42",
+      "Třebíč,aut.nádr.": "15:47",
+      "Třebíč,Sýpky": "15:48",
+      "Třebíč,Míčova": "15:50"
+    }
+  },
+  {
+    "linka": "25",
+    "spoj": "2",
+    "provoz": "1-4",
+    "zastavky": {
+      "Dukovany,EDU": "15:15",
+      "Třebíč,Znojemská": "15:40"
+    }
+  },
+  {
+    "linka": "25",
+    "spoj": null,
+    "provoz": "5",
+    "zastavky": {
+      "Dukovany,EDU": "15:15",
+      "Slavětice": "15:19",
+      "Třebenice,hl. sil.": "15:28",
+      "Dolní Vilémovice,rozc.": "13:31",
+      "Třebíč,U Lípy": "15:40",
+      "Třebíč,Kaufland": "15:43",
+      "Třebíč,Dřevařské závody": "15:45",
+      "Třebíč,Míčova": "15:47",
+      "Třebíč,Gen.Svobody": "15:48",
+      "Třebíč,Marie Majerové": "15:49",
+      "Třebíč,Na Holečku": "15:50",
+      "Třebíč,Sýpky": "15:52"
+    }
+  },
+  {
+    "linka": "12",
+    "spoj": "1",
+    "provoz": "1-4",
+    "zastavky": {
+      "Dukovany,EDU": "15:20",
+      "Slavětice": "15:25",
+      "Dalešice,rozc.": "15:30",
+      "Třebíč,U Lípy": "15:45",
+      "Třebíč,Kaufland": "15:47",
+      "Třebíč,Dřevařské závody": "15:49",
+      "Třebíč,Míčova": "15:51",
+      "Třebíč,Gen.Svobody": "15:53",
+      "Třebíč,Marie Majerové": "15:55",
+      "Třebíč,Na Holečku": "15:56",
+      "Třebíč,Sýpky": "15:58",
+      "Třebíč,u aut.nádr.": "16:03",
+      "Třebíč,Za Rybníkem": "16:11"
+    }
+  },
+  {
+    "linka": "11",
+    "spoj": "6",
+    "provoz": "1-4",
+    "zastavky": {
+      "Dukovany,EDU": "15:35",
+      "Slavětice": "15:39",
+      "Dalešice,rozc.": "15:43",
+      "Třebíč,Znojemská": "16:00",
+      "Třebíč,u aut.nádr.": "16:05",
+      "Třebíč,Borovina,Pražská": "16:07",
+      "Třebíč,Borovina,BOPO": "16:08",
+      "Třebíč,Za Rybníkem": "16:10"
+    }
+  },
+  {
+    "linka": "22",
+    "spoj": null,
+    "provoz": "1-4,O",
+    "zastavky": {
+      "Dukovany,EDU": "15:35",
+      "Slavětice": "15:39",
+      "Třebenice,hl. sil.": "15:50",
+      "Dolní Vilémovice,rozc.": "15:54",
+      "Slavičky": "15:55",
+      "Třebíč,U Lípy": "16:00",
+      "Třebíč,Kaufland": "16:03",
+      "Třebíč,Dřevařské závody": "16:05",
+      "Třebíč,Míčova": "16:07",
+      "Třebíč,Gen.Svobody": "16:08",
+      "Třebíč,Marie Majerové": "16:09",
+      "Třebíč,Na Holečku": "16:10",
+      "Třebíč,Sýpky": "16:12"
+    }
+  },
+  {
+    "linka": "13",
+    "spoj": "8",
+    "provoz": "1-4",
+    "zastavky": {
+      "Dukovany,EDU": "16:35",
+      "Slavětice": "16:39",
+      "Dalešice,rozc.": "16:43",
+      "Valeč": "16:47",
+      "Třebíč,Znojemská": "17:00",
+      "Třebíč,u aut.nádr.": "17:05",
+      "Třebíč,Borovina,Pražská": "17:07",
+      "Třebíč,Borovina,BOPO": "17:09",
+      "Třebíč,Za Rybníkem": "17:10"
+    }
+  },
+  {
+    "linka": "22",
+    "spoj": null,
+    "provoz": "5",
+    "zastavky": {
+      "Dukovany,EDU": "16:35",
+      "Slavětice": "16:39",
+      "Dalešice,rozc.": "16:43",
+      "Třebenice,hl. sil.": "16:50",
+      "Dolní Vilémovice,rozc.": "16:54",
+      "Slavičky": "16:55",
+      "Slavičky,Okrašovice,rozc.": "16:56",
+      "Třebíč,U Lípy": "17:00",
+      "Třebíč,Kaufland": "17:03",
+      "Třebíč,Dřevařské závody": "17:05",
+      "Třebíč,Míčova": "17:07",
+      "Třebíč,Gen.Svobody": "17:08",
+      "Třebíč,Marie Majerové": "17:09",
+      "Třebíč,Na Holečku": "17:10",
+      "Třebíč,Sýpky": "17:12",
+      "Třebíč,u aut.nádr.": "17:14",
+      "Třebíč,Borovina,Pražská": "17:16",
+      "Třebíč,Za Rybníkem": "17:21"
+    }
+  },
+  {
+    "linka": "23",
+    "spoj": "4",
+    "provoz": "1-4",
+    "zastavky": {
+      "Dukovany,EDU": "16:35",
+      "Slavětice": "16:39",
+      "Třebenice,hl. sil.": "16:48",
+      "Dolní Vilémovice,rozc.": "16:51",
+      "Slavičky": "16:52",
+      "Slavičky,Okrašovice,rozc.": "16:53",
+      "Třebíč,U Lípy": "17:00",
+      "Třebíč,Kaufland": "17:03",
+      "Třebíč,Dřevařské závody": "17:05",
+      "Třebíč,Míčova": "17:07",
+      "Třebíč,Gen.Svobody": "17:08",
+      "Třebíč,Marie Majerové": "17:09",
+      "Třebíč,Na Holečku": "17:10",
+      "Třebíč,Sýpky": "17:12"
+    }
+  },
+  {
+    "linka": "2",
+    "spoj": null,
+    "provoz": "1-7,O",
+    "zastavky": {
+      "Dukovany,EDU": "18:05",
+      "Slavětice": "18:10",
+      "Dalešice,rozc.": "18:14",
+      "Třebenice,hl. sil.": "18:20",
+      "Dolní Vilémovice,rozc.": "18:25",
+      "Slavičky": "18:27",
+      "Slavičky,Okrašovice,rozc.": "18:29",
+      "Třebíč,U Lípy": "18:32",
+      "Třebíč,Kaufland": "18:34",
+      "Třebíč,Dřevařské závody": "18:36",
+      "Třebíč,Míčova": "18:38",
+      "Třebíč,Gen.Svobody": "18:39",
+      "Třebíč,Marie Majerové": "18:41",
+      "Třebíč,Na Holečku": "18:43",
+      "Třebíč,Sýpky": "18:46"
+    }
+  },
+  {
+    "linka": "3",
+    "spoj": null,
+    "provoz": "6-7,O",
+    "zastavky": {
+      "Dukovany,EDU": "18:05",
+      "Slavětice": "18:09",
+      "Dalešice,rozc.": "18:13",
+      "Valeč": "18:17",
+      "Třebíč,Znojemská": "18:30",
+      "Třebíč,u aut.nádr.": "18:35",
+      "Třebíč,Borovina,Pražská": "18:37",
+      "Třebíč,Za Rybníkem": "18:40"
+    }
+  },
+  {
+    "linka": "5",
+    "spoj": null,
+    "provoz": "X",
+    "zastavky": {
+      "Dukovany,EDU": "18:05",
+      "Slavětice": "18:09",
+      "Dalešice,rozc.": "18:13",
+      "Valeč": "18:17",
+      "Třebíč,Znojemská": "18:30",
+      "Třebíč,u aut.nádr.": "18:35",
+      "Třebíč,Borovina,Pražská": "18:37",
+      "Třebíč,Za Rybníkem": "18:40"
+    }
+  },
+  {
+    "linka": "2",
+    "spoj": null,
+    "provoz": "1-7",
+    "zastavky": {
+      "Dukovany,EDU": "22:05",
+      "Slavětice": "22:10",
+      "Dalešice,rozc.": "22:14",
+      "Třebenice,hl. sil.": "22:20",
+      "Dolní Vilémovice,rozc.": "22:25",
+      "Slavičky": "22:27",
+      "Slavičky,Okrašovice,rozc.": "22:29",
+      "Třebíč,U Lípy": "22:32",
+      "Třebíč,Kaufland": "22:34",
+      "Třebíč,Dřevařské závody": "22:36",
+      "Třebíč,Míčova": "22:38",
+      "Třebíč,Gen.Svobody": "22:39",
+      "Třebíč,Marie Majerové": "22:41",
+      "Třebíč,Na Holečku": "22:43",
+      "Třebíč,Sýpky": "22:46"
+    }
+  },
+  {
+    "linka": "3+5",
+    "spoj": null,
+    "provoz": "X,6,7",
+    "zastavky": {
+      "Dukovany,EDU": "22:05",
+      "Slavětice": "22:09",
+      "Dalešice,rozc.": "22:13",
+      "Valeč": "22:17",
+      "Třebíč,Znojemská": "22:30",
+      "Třebíč,u aut.nádr.": "22:35",
+      "Třebíč,Borovina,Pražská": "22:37",
+      "Třebíč,Za Rybníkem": "22:40"
+    }
+  }
+]
