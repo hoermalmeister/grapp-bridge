@@ -1,15 +1,15 @@
 import fs from 'fs';
 import path from 'path';
 import readline from 'readline';
-import AdmZip from 'adm-zip';
 import { fileURLToPath } from 'url';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 const dataDir = path.join(__dirname, '..', 'data');
+const gtfsDir = path.join(__dirname, '..', 'gtfs_raw');
+
 if (!fs.existsSync(dataDir)) fs.mkdirSync(dataDir);
 
-// Pomocná funkce na parsování CSV
 const parseCsv = (line) => {
     const res = []; let curr = ''; let inQ = false;
     for (let i = 0; i < line.length; i++) {
@@ -21,46 +21,25 @@ const parseCsv = (line) => {
     res.push(curr.trim()); return res;
 };
 
-// Slušné čekání pro OSRM API (abychom nedostali ban)
 const sleep = (ms) => new Promise(resolve => setTimeout(resolve, ms));
 
 async function runSegmentRouting() {
-    console.log("1. Stahuji celostátní GTFS ze Spojenky...");
-    const res = await fetch('https://www.spojenka.cz/jrdata/jizdnirady-gtfs.zip');
-    if (!res.ok) throw new Error("Nelze stáhnout GTFS ZIP");
-    const buffer = await res.arrayBuffer();
-    const zip = new AdmZip(Buffer.from(buffer));
-
-    const getFileStream = (fileName) => {
-        const entry = zip.getEntries().find(e => e.entryName === fileName);
-        if (!entry) throw new Error(`Soubor ${fileName} chybí v ZIPu`);
-        const text = zip.readAsText(entry, 'utf8');
-        const stream = require('stream');
-        return stream.Readable.from(text);
-    };
-
-    // --- KROK 1: ZASTÁVKY (Filtrujeme pouze ty, co mají v zone_id 'V') ---
-    console.log("2. Analyzuji stops.txt...");
-    const validStops = new Map(); // stop_id -> {lat, lon}
-    let rl = readline.createInterface({ input: getFileStream('stops.txt') });
+    console.log("1. Načítám zastávky (stops.txt)...");
+    const stopMap = new Map();
+    let rl = readline.createInterface({ input: fs.createReadStream(path.join(gtfsDir, 'stops.txt')) });
     let headers = null;
     for await (const line of rl) {
         if (!headers) { headers = parseCsv(line); continue; }
         const cols = parseCsv(line);
-        const zoneId = cols[headers.indexOf('zone_id')];
-        if (zoneId && zoneId.includes('V')) {
-            validStops.set(cols[headers.indexOf('stop_id')], {
-                lat: parseFloat(cols[headers.indexOf('stop_lat')]),
-                lon: parseFloat(cols[headers.indexOf('stop_lon')])
-            });
-        }
+        const sId = cols[headers.indexOf('stop_id')];
+        const lat = parseFloat(cols[headers.indexOf('stop_lat')]);
+        const lon = parseFloat(cols[headers.indexOf('stop_lon')]);
+        if (sId && !isNaN(lat)) stopMap.set(sId, { lat, lon });
     }
-    console.log(`Nalezeno ${validStops.size} VDV zastávek.`);
 
-    // --- KROK 2: LINKY (routes.txt -> route_id: "841129") ---
-    console.log("3. Mapuji linky...");
+    console.log("2. Hledám VDV linky přes CISJR (routes.txt)...");
     const routeToCisjr = new Map();
-    rl = readline.createInterface({ input: getFileStream('routes.txt') });
+    rl = readline.createInterface({ input: fs.createReadStream(path.join(gtfsDir, 'routes.txt')) });
     headers = null;
     for await (const line of rl) {
         if (!headers) { headers = parseCsv(line); continue; }
@@ -72,10 +51,9 @@ async function runSegmentRouting() {
         }
     }
 
-    // --- KROK 3: SPOJE (trips.txt -> trip_id: "841129_25") ---
-    console.log("4. Mapuji spoje...");
+    console.log("3. Hledám VDV spoje (trips.txt)...");
     const tripToCisjr = new Map();
-    rl = readline.createInterface({ input: getFileStream('trips.txt') });
+    rl = readline.createInterface({ input: fs.createReadStream(path.join(gtfsDir, 'trips.txt')) });
     headers = null;
     for await (const line of rl) {
         if (!headers) { headers = parseCsv(line); continue; }
@@ -85,22 +63,19 @@ async function runSegmentRouting() {
         const rel = cols[headers.indexOf('relations')];
         if (routeToCisjr.has(rId) && rel) {
             const match = rel.match(/CISJR:(\d+)/);
-            if (match) {
-                tripToCisjr.set(tId, `${routeToCisjr.get(rId)}_${match[1]}`);
-            }
+            if (match) tripToCisjr.set(tId, `${routeToCisjr.get(rId)}_${match[1]}`);
         }
     }
+    console.log(` > Nalezeno ${tripToCisjr.size} VDV spojů.`);
 
-    // --- KROK 4: ZASTÁVKOVÉ ČASY (stop_times.txt -> skládání sekvencí) ---
-    console.log("5. Čtu stop_times.txt a tvořím sekvence zastávek...");
-    const tripSequences = new Map(); // cisjr_id -> [ {seq, stop_id} ]
-    rl = readline.createInterface({ input: getFileStream('stop_times.txt') });
+    console.log("4. Tvořím sekvence zastávek (stop_times.txt)...");
+    const tripSequences = new Map();
+    rl = readline.createInterface({ input: fs.createReadStream(path.join(gtfsDir, 'stop_times.txt')) });
     headers = null;
     
     for await (const line of rl) {
         if (!headers) { headers = parseCsv(line); continue; }
         
-        // Rychlý pre-check abychom neparsovali nepotřebné řádky
         const firstComma = line.indexOf(',');
         const tIdRaw = line.substring(0, firstComma).replace(/"/g, ''); 
         const cisjrId = tripToCisjr.get(tIdRaw);
@@ -108,8 +83,7 @@ async function runSegmentRouting() {
         if (cisjrId) {
             const cols = parseCsv(line);
             const sId = cols[headers.indexOf('stop_id')];
-            // ORPHAN FILTER: Ponecháme jen zastávky patřící pod VDV
-            if (validStops.has(sId)) {
+            if (stopMap.has(sId)) {
                 if (!tripSequences.has(cisjrId)) tripSequences.set(cisjrId, []);
                 tripSequences.get(cisjrId).push({
                     seq: parseInt(cols[headers.indexOf('stop_sequence')], 10),
@@ -119,15 +93,13 @@ async function runSegmentRouting() {
         }
     }
 
-    // --- KROK 5: TVORBA UNIKÁTNÍCH SEGMENTŮ A KOSTER SPOJŮ ---
-    console.log("6. Tvořím unikátní segmenty a kostry spojů...");
-    const uniqueSegments = new Set(); // Uchová 'stopA_stopB'
-    const finalTrips = {}; // "841129_25": ["stopA_stopB", "stopB_stopC", ...]
+    console.log("5. Vytvářím unikátní traťové segmenty...");
+    const uniqueSegments = new Set();
+    const finalTrips = {};
 
     for (const [cisjrId, stops] of tripSequences.entries()) {
-        stops.sort((a, b) => a.seq - b.seq); // Seřadíme zastávky
-        
-        if (stops.length < 2) continue; // Ignorujeme osiřelé jednokolejky
+        stops.sort((a, b) => a.seq - b.seq);
+        if (stops.length < 2) continue;
         
         finalTrips[cisjrId] = [];
         for (let i = 0; i < stops.length - 1; i++) {
@@ -139,23 +111,17 @@ async function runSegmentRouting() {
             finalTrips[cisjrId].push(segKey);
         }
     }
+    console.log(` > Získáno ${uniqueSegments.size} UNIKÁTNÍCH traťových úseků ke zpracování.`);
 
-    console.log(`   > Získáno ${Object.keys(finalTrips).length} platných VDV spojů.`);
-    console.log(`   > Nalezeno ${uniqueSegments.size} UNIKÁTNÍCH traťových úseků ke zpracování.`);
-
-    // --- KROK 6: ROUTOVÁNÍ SEGMENTŮ PŘES OSRM ---
-    console.log("7. Komunikuji s OSRM API (To chvíli potrvá)...");
-    const finalSegments = {}; // "stopA|stopB": [[lon,lat], [lon,lat]]
+    console.log("6. Komunikuji s OSRM API (Může trvat několik minut)...");
+    const finalSegments = {};
     let processed = 0;
 
     for (const segKey of uniqueSegments) {
         const [s1, s2] = segKey.split('|');
-        const p1 = validStops.get(s1);
-        const p2 = validStops.get(s2);
+        const p1 = stopMap.get(s1);
+        const p2 = stopMap.get(s2);
 
-        if (!p1 || !p2) continue;
-
-        // Pokud je to stejná zastávka (stejné GPS), OSRM nepotřebujeme
         if (p1.lat === p2.lat && p1.lon === p2.lon) {
             finalSegments[segKey] = [[p1.lon, p1.lat]];
             continue;
@@ -164,16 +130,15 @@ async function runSegmentRouting() {
         try {
             const osrmUrl = `https://router.project-osrm.org/route/v1/driving/${p1.lon},${p1.lat};${p2.lon},${p2.lat}?overview=full&geometries=geojson`;
             const req = await fetch(osrmUrl);
-            
             if (req.ok) {
                 const data = await req.json();
                 if (data.routes && data.routes.length > 0) {
                     finalSegments[segKey] = data.routes[0].geometry.coordinates;
                 } else {
-                    finalSegments[segKey] = [[p1.lon, p1.lat], [p2.lon, p2.lat]]; // Fallback rovná čára
+                    finalSegments[segKey] = [[p1.lon, p1.lat], [p2.lon, p2.lat]];
                 }
             } else {
-                finalSegments[segKey] = [[p1.lon, p1.lat], [p2.lon, p2.lat]]; // Fallback rovná čára
+                finalSegments[segKey] = [[p1.lon, p1.lat], [p2.lon, p2.lat]];
             }
         } catch (e) {
             finalSegments[segKey] = [[p1.lon, p1.lat], [p2.lon, p2.lat]];
@@ -182,17 +147,18 @@ async function runSegmentRouting() {
         processed++;
         if (processed % 100 === 0) console.log(`   > Vyhlazeno ${processed}/${uniqueSegments.size} segmentů...`);
         
-        // ZLATÉ PRAVIDLO: Necháme OSRM vydechnout, aby nás nezařízl (10 požadavků za vteřinu je OK)
-        await sleep(100); 
+        // Zpoždění proti zablokování OSRM API
+        await sleep(150); 
     }
 
-    // --- KROK 7: ULOŽENÍ VÝSLEDKŮ ---
+    console.log("7. Ukládám výsledky...");
     fs.writeFileSync(path.join(dataDir, 'vdv_segments.json'), JSON.stringify(finalSegments));
     fs.writeFileSync(path.join(dataDir, 'vdv_trips.json'), JSON.stringify(finalTrips));
     
-    console.log(`\nHOTOVO! Úspěšně uloženo do data/`);
-    console.log(`Velikost tras: ${(fs.statSync(path.join(dataDir, 'vdv_segments.json')).size / 1024).toFixed(1)} KB`);
-    console.log(`Velikost spojů: ${(fs.statSync(path.join(dataDir, 'vdv_trips.json')).size / 1024).toFixed(1)} KB`);
+    console.log(`\nHOTOVO! Úspěšně uloženo.`);
 }
 
-runSegmentRouting().catch(console.error);
+runSegmentRouting().catch(e => {
+    console.error("Kritická chyba ve skriptu:", e);
+    process.exit(1); // Zabije proces a Action zčervená!
+});
