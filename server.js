@@ -58,6 +58,16 @@ try {
     console.warn("Upozornění: JSON data zatím neexistují. Github Action je vytvoří v noci.");
 }
 
+let vdvStopsCoords = {};
+try {
+    if (fs.existsSync('./data/vdv_stops_coords.json')) {
+        vdvStopsCoords = JSON.parse(fs.readFileSync('./data/vdv_stops_coords.json', 'utf8'));
+        console.log(`VDV souřadnice tras načteny (${Object.keys(vdvStopsCoords).length} spojů).`);
+    }
+} catch (e) {
+    console.warn("Upozornění: Soubor vdv_stops_coords.json neexistuje.");
+}
+
 // --- 1. ENDPOINT PRO HLAVNÍ DATA ---
 app.get('/grapp', async (req, res) => {
     try {
@@ -603,6 +613,50 @@ app.get('/vdv/timetable', async (req, res) => {
     } catch (err) {
         console.error("Chyba VDV Timetable:", err.message);
         res.status(500).send("Chyba při stahování VDV JŘ");
+    }
+});
+
+// --- 13. ENDPOINT PRO VDV (Kreslení trasy přes ID + OSRM) ---
+app.get('/vdv/route', async (req, res) => {
+    try {
+        const { id } = req.query; // Přijde např. "841129_25"
+        
+        if (!id || !vdvStopsCoords[id] || vdvStopsCoords[id].length < 2) {
+            return res.json({ shape: null });
+        }
+
+        const coords = vdvStopsCoords[id];
+
+        // OSRM doporučuje limit bodů (pro jistotu proškrtáme na max 90, zachováme první a poslední)
+        let routePoints = coords;
+        if (coords.length > 90) {
+            const step = Math.ceil(coords.length / 88);
+            routePoints = coords.filter((_, idx) => idx % step === 0);
+            if (routePoints[routePoints.length - 1] !== coords[coords.length - 1]) {
+                routePoints.push(coords[coords.length - 1]);
+            }
+        }
+
+        const coordString = routePoints.map(pt => `${pt[0]},${pt[1]}`).join(';');
+        
+        const osrmUrl = `https://router.project-osrm.org/route/v1/driving/${coordString}?overview=full&geometries=geojson`;
+        const osrmRes = await fetch(osrmUrl);
+        
+        if (!osrmRes.ok) {
+            // FALLBACK: OSRM má výpadek? Vrátíme přímé pavučinové propojení zastávek
+            return res.json({ shape: coords });
+        }
+
+        const osrmData = await osrmRes.json();
+        
+        if (osrmData.routes && osrmData.routes.length > 0) {
+            return res.json({ shape: osrmData.routes[0].geometry.coordinates });
+        }
+
+        res.json({ shape: coords });
+    } catch (error) {
+        console.error("OSRM/VDV Error:", error.message);
+        res.json({ shape: null });
     }
 });
 
