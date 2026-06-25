@@ -1370,7 +1370,7 @@
   },
   {
     "linka": "2",
-    "spoj": null,
+    "spoj": "8",
     "provoz": "1-7,O",
     "zastavky": {
       "Dukovany,EDU": "18:05",
@@ -1407,7 +1407,7 @@
   },
   {
     "linka": "5",
-    "spoj": null,
+    "spoj": "8",
     "provoz": "X",
     "zastavky": {
       "Dukovany,EDU": "18:05",
