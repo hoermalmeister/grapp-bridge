@@ -1,9 +1,14 @@
 import express from 'express';
 import cors from 'cors';
 import fs from 'fs';
-const path = require('path');
-const readline = require('readline');
-const AdmZip = require('adm-zip');
+import path from 'path';
+import readline from 'readline';
+import AdmZip from 'adm-zip';
+import { fileURLToPath } from 'url';
+
+// V moderních ES modulech neexistuje __dirname, musíme si ho manuálně definovat:
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
 // Globální on-demand indexy (zabírají minimum RAM, jelikož drží jen stringy)
 let vdvStopsMap = new Map();      // stop_id -> [lon, lat]
