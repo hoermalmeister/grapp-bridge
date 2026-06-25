@@ -18,8 +18,12 @@ jobs:
         with:
           node-version: '20'
 
-      - name: Instalace závislostí
-        run: npm install adm-zip
+      - name: Stáhnout a rozbalit GTFS (Linux Native)
+        run: |
+          mkdir -p gtfs_raw
+          curl -o gtfs.zip https://www.spojenka.cz/jrdata/jizdnirady-gtfs.zip
+          unzip -o gtfs.zip -d gtfs_raw stops.txt routes.txt trips.txt stop_times.txt
+          rm gtfs.zip
 
       - name: Generování tras po segmentech
         run: node scripts/update_vdv_shapes.js
@@ -28,6 +32,7 @@ jobs:
         run: |
           git config --global user.name "github-actions[bot]"
           git config --global user.email "github-actions[bot]@users.noreply.github.com"
-          git add data/vdv_segments.json data/vdv_trips.json
-          git commit -m "Automatická aktualizace VDV tras (segmenty)" || echo "Žádné změny k uložení"
+          # Přidáno -f (force) pro případ, že by data/ byla v .gitignore
+          git add -f data/vdv_segments.json data/vdv_trips.json
+          git commit -m "🤖 Automatická aktualizace VDV tras (segmenty)" || echo "Žádné změny k uložení"
           git push
