@@ -606,6 +606,59 @@ app.get('/vdv/timetable', async (req, res) => {
     }
 });
 
+// Načtení hotových segmentů z Github Actions (přidej někam nahoru pod ostatní jsony)
+let vdvSegments = {};
+let vdvTrips = {};
+try {
+    if (fs.existsSync('./data/vdv_segments.json') && fs.existsSync('./data/vdv_trips.json')) {
+        vdvSegments = JSON.parse(fs.readFileSync('./data/vdv_segments.json', 'utf8'));
+        vdvTrips = JSON.parse(fs.readFileSync('./data/vdv_trips.json', 'utf8'));
+        console.log(`VDV Trasy načteny: ${Object.keys(vdvTrips).length} spojů, ${Object.keys(vdvSegments).length} segmentů.`);
+    }
+} catch (e) {
+    console.warn("Upozornění: VDV segmenty zatím neexistují.");
+}
+
+// ...
+
+// --- 13. ENDPOINT PRO VDV (Kreslení trasy pomocí spojování segmentů) ---
+app.get('/vdv/route', (req, res) => {
+    try {
+        const { id } = req.query; // Přijde např. "841129_25"
+        
+        // Získáme pole identifikátorů segmentů: ["stopA|stopB", "stopB|stopC", ...]
+        const tripSegments = vdvTrips[id];
+        
+        if (!tripSegments || tripSegments.length === 0) {
+            return res.json({ shape: null });
+        }
+
+        const fullShape = [];
+        
+        // Jako Lego dílky spojíme souřadnice všech segmentů
+        for (const segKey of tripSegments) {
+            const coords = vdvSegments[segKey];
+            if (coords && coords.length > 0) {
+                // Abychom neměli zduplikované body na zlomech zastávek,
+                // přeskočíme první bod segmentu (pokud už ve fullShape něco je)
+                const startIdx = fullShape.length > 0 ? 1 : 0;
+                for (let i = startIdx; i < coords.length; i++) {
+                    fullShape.push(coords[i]);
+                }
+            }
+        }
+
+        if (fullShape.length < 2) {
+            return res.json({ shape: null });
+        }
+
+        res.json({ shape: fullShape });
+    } catch (error) {
+        console.error("Chyba při skládání VDV trasy:", error.message);
+        res.json({ shape: null });
+    }
+});
+
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, async () => {
     console.log(`GRAPP Můstek naslouchá na portu ${PORT}`);
