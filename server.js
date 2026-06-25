@@ -357,29 +357,24 @@ app.get('/pid/timetable', async (req, res) => {
     }
 });
 
-// Paměť pro aktuálně platný token (začneme tím tvým úlovkem)
-let jmkToken = 'fFdFQnwyODczZjViZS1lNmMwLTQwMWItOGJmMC05MmRiMzJkMmRmZWY=';
+let jmkToken = '';
 
 // --- FUNKCE PRO AUTOMATICKÉ NALEZENÍ NOVÉHO TOKENU ---
 async function refreshJmkToken() {
-    console.log("IDS JMK token pravděpodobně vypršel. Hledám nový ze zdrojových kódů...");
+    console.log("Získávám čerstvý IDS JMK token ze zdrojových kódů...");
     try {
-        // 1. Stáhneme hlavní HTML stránku
         const response = await fetch('https://mapa.idsjmk.cz/');
         const html = await response.text();
         
-        // Regulární výraz pro hledání Base64 textu začínajícího na fFdFQnw ("|WEB|")
         const tokenRegex = /(fFdFQnw[A-Za-z0-9+/=]+)/;
-        
-        // 2. Prohledáme nejprve samotné HTML
         let match = html.match(tokenRegex);
+        
         if (match && match[1]) {
             jmkToken = match[1];
-            console.log("Auto-Heal: Nový token nalezen přímo v HTML.");
+            console.log("IDS JMK Token úspěšně načten z HTML.");
             return true;
         }
 
-        // 3. Většinou je ale v moderních webech token skrytý až v načtených .js souborech (React/Angular)
         const scriptMatches = [...html.matchAll(/<script[^>]+src="([^">]+)"/g)];
         for (const scriptMatch of scriptMatches) {
             let scriptUrl = scriptMatch[1];
@@ -393,12 +388,12 @@ async function refreshJmkToken() {
             match = scriptText.match(tokenRegex);
             if (match && match[1]) {
                 jmkToken = match[1];
-                console.log(`Auto-Heal: Nový token nalezen v JS souboru (${scriptUrl}).`);
+                console.log(`IDS JMK Token úspěšně načten z JS (${scriptUrl}).`);
                 return true;
             }
         }
 
-        console.error("Auto-Heal selhal: Token se nepodařilo najít.");
+        console.error("Získání IDS JMK tokenu selhalo.");
         return false;
     } catch (err) {
         console.error("Chyba při vyhledávání nového tokenu:", err);
@@ -408,6 +403,10 @@ async function refreshJmkToken() {
 
 // --- POMOCNÁ FUNKCE PRO VOLÁNÍ API JMK (S Auto-Healingem) ---
 async function fetchJmkApi(url) {
+    if (!jmkToken) {
+        await refreshJmkToken();
+    }
+
     let options = {
         headers: {
             'accept': 'application/json, text/plain, */*',
@@ -420,8 +419,9 @@ async function fetchJmkApi(url) {
 
     let response = await fetch(url, options);
 
-    // Pokud token vypršel, spustíme obnovu a zkusíme to znovu
+    // Pokud token mezitím vypršel (server běží už dlouho), obnovíme ho a zkusíme to podruhé
     if (response.status === 401 || response.status === 403) {
+        console.log("Platnost IDS JMK tokenu vypršela, spouštím obnovu...");
         const refreshed = await refreshJmkToken();
         if (refreshed) {
             options.headers['x-access-token'] = jmkToken;
@@ -607,4 +607,7 @@ app.get('/vdv/timetable', async (req, res) => {
 });
 
 const PORT = process.env.PORT || 3000;
-app.listen(PORT, () => console.log(`GRAPP Můstek naslouchá na portu ${PORT}`));
+app.listen(PORT, async () => {
+    console.log(`GRAPP Můstek naslouchá na portu ${PORT}`);
+    refreshJmkToken();
+});
