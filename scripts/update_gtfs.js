@@ -124,3 +124,124 @@ if (!fs.existsSync('./data')) fs.mkdirSync('./data');
     await processJMK();
     await processPID();
 })();
+
+async function processVdvStopsById() {
+    console.log("Stahuji GTFS pro generování tras VDV (ID matching)...");
+    const res = await fetch('https://www.spojenka.cz/jrdata/jizdnirady-gtfs.zip');
+    if (!res.ok) throw new Error("Nelze stáhnout GTFS ze Spojenky");
+    
+    const buffer = await res.arrayBuffer();
+    const zip = new AdmZip(Buffer.from(buffer));
+    
+    const parseCsvLine = (line) => {
+        const result = []; let current = ''; let inQuotes = false;
+        for (let i = 0; i < line.length; i++) {
+            const char = line[i];
+            if (char === '"' && line[i + 1] === '"') { current += '"'; i++; }
+            else if (char === '"') { inQuotes = !inQuotes; }
+            else if (char === ',' && !inQuotes) { result.push(current); current = ''; }
+            else { current += char; }
+        }
+        result.push(current); return result;
+    };
+
+    // 1. Zastávky: stop_id -> {lat, lon}
+    const stopsEntry = zip.getEntries().find(e => e.entryName === 'stops.txt');
+    const stopsLines = zip.readAsText(stopsEntry, 'utf8').split('\n');
+    const sH = parseCsvLine(stopsLines[0].trim());
+    const stopMap = {};
+    for (let i = 1; i < stopsLines.length; i++) {
+        if (!stopsLines[i]) continue;
+        const cols = parseCsvLine(stopsLines[i].trim());
+        stopMap[cols[sH.indexOf('stop_id')]] = {
+            lat: parseFloat(cols[sH.indexOf('stop_lat')]),
+            lon: parseFloat(cols[sH.indexOf('stop_lon')])
+        };
+    }
+
+    // 2. Linky: route_id -> 841129
+    const routesEntry = zip.getEntries().find(e => e.entryName === 'routes.txt');
+    const routeLines = zip.readAsText(routesEntry, 'utf8').split('\n');
+    const rH = parseCsvLine(routeLines[0].trim());
+    const routeMap = {};
+    for (let i = 1; i < routeLines.length; i++) {
+        if (!routeLines[i]) continue;
+        const cols = parseCsvLine(routeLines[i].trim());
+        const rel = cols[rH.indexOf('relations')];
+        if (rel) {
+            const match = rel.match(/CISJR:(\d{6})/);
+            if (match) routeMap[cols[rH.indexOf('route_id')]] = match[1];
+        }
+    }
+
+    // 3. Spoje: trip_id -> "841129_25"
+    const tripsEntry = zip.getEntries().find(e => e.entryName === 'trips.txt');
+    const tripLines = zip.readAsText(tripsEntry, 'utf8').split('\n');
+    const tH = parseCsvLine(tripLines[0].trim());
+    const tripMap = {}; 
+    for (let i = 1; i < tripLines.length; i++) {
+        if (!tripLines[i]) continue;
+        const cols = parseCsvLine(tripLines[i].trim());
+        const rId = cols[tH.indexOf('route_id')];
+        const rel = cols[tH.indexOf('relations')];
+        
+        if (rId && rel && routeMap[rId]) {
+            const match = rel.match(/CISJR:(\d+)/);
+            if (match) tripMap[cols[tH.indexOf('trip_id')]] = `${routeMap[rId]}_${match[1]}`;
+        }
+    }
+
+    // 4. Čtení stop_times.txt (řádek po řádku kvůli úspoře RAM)
+    console.log("Zpracovávám stop_times.txt pro VDV...");
+    const stEntry = zip.getEntries().find(e => e.entryName === 'stop_times.txt');
+    const stData = zip.readAsText(stEntry, 'utf8');
+    
+    const vdvRawStops = {}; 
+    let stHeaders = null;
+    let tIdx = -1, sIdx = -1, seqIdx = -1;
+
+    let lineStart = 0;
+    while (lineStart < stData.length) {
+        let lineEnd = stData.indexOf('\n', lineStart);
+        if (lineEnd === -1) lineEnd = stData.length;
+        const line = stData.slice(lineStart, lineEnd).trim();
+        lineStart = lineEnd + 1;
+
+        if (!line) continue;
+
+        if (!stHeaders) {
+            stHeaders = parseCsvLine(line);
+            tIdx = stHeaders.indexOf('trip_id');
+            sIdx = stHeaders.indexOf('stop_id');
+            seqIdx = stHeaders.indexOf('stop_sequence');
+            continue;
+        }
+
+        const firstComma = line.indexOf(',');
+        const tId = line.substring(0, firstComma).replace(/"/g, ''); 
+        
+        const vdvKey = tripMap[tId];
+        if (vdvKey) {
+            const cols = parseCsvLine(line);
+            const stop = stopMap[cols[sIdx]];
+            if (stop) {
+                if (!vdvRawStops[vdvKey]) vdvRawStops[vdvKey] = [];
+                vdvRawStops[vdvKey].push({
+                    seq: parseInt(cols[seqIdx], 10),
+                    lat: stop.lat,
+                    lon: stop.lon
+                });
+            }
+        }
+    }
+
+    // 5. Seřazení a uložení
+    const vdvFinalStops = {};
+    for (const key in vdvRawStops) {
+        vdvRawStops[key].sort((a, b) => a.seq - b.seq);
+        vdvFinalStops[key] = vdvRawStops[key].map(pt => [pt.lon, pt.lat]); // [lon, lat] pro OSRM
+    }
+
+    fs.writeFileSync('./data/vdv_stops_coords.json', JSON.stringify(vdvFinalStops));
+    console.log(`Hotovo! Sekvence souřadnic uloženy pro ${Object.keys(vdvFinalStops).length} spojů VDV.`);
+}
