@@ -21,7 +21,7 @@ jobs:
       - name: Stáhnout a rozbalit GTFS (Linux Native)
         run: |
           mkdir -p gtfs_raw
-          curl -o gtfs.zip https://www.spojenka.cz/jrdata/jizdnirady-gtfs.zip
+          curl -L -f -o gtfs.zip https://www.spojenka.cz/jrdata/jizdnirady-gtfs.zip
           unzip -o gtfs.zip -d gtfs_raw stops.txt routes.txt trips.txt stop_times.txt
           rm gtfs.zip
 
