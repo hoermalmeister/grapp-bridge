@@ -21,6 +21,7 @@ const manualStops = {
     "20227": "Prostějov, Újezd",
     "30013": "Prostějov, aut.st.",
     "7510": "Nová Zbrojovka",
+    "7506": "Mosilana",
     "20201": "Malé Hradisko",
     "20202": "Ptení, Holubice, rozcestí",
     "20203": "Stínava",
