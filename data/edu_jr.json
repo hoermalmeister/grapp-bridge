@@ -2,7 +2,7 @@
   {
     "Stařeč,nám.":"49.1972047,15.8266067",
     "Třebíč,Za Rybníkem":"49.2051544,15.8453131",
-    "Třebíč,Borovina,BOPO":"49.2073964,15.8524253",
+    "Třebíč,Koželužská":"49.2062606,15.8553706",
     "Třebíč,Borovina,Pražská":"49.2100028,15.8584872",
     "Třebíč,u aut.nádr.":"49.2141953,15.8756761",
     "Třebíč,Marie Majerové":"49.2221414,15.8826789",
@@ -74,7 +74,7 @@
     "provoz": "6,7",
     "zastavky": {
       "Třebíč,Za Rybníkem": "4:40",
-      "Třebíč,Borovina,BOPO": "4:41",
+      "Třebíč,Koželužská": "4:41",
       "Třebíč,Borovina,Pražská": "4:42",
       "Třebíč,u aut.nádr.": "4:43",
       "Třebíč,nemocnice": "4:45",
@@ -91,7 +91,7 @@
     "provoz": "X",
     "zastavky": {
       "Třebíč,Za Rybníkem": "4:40",
-      "Třebíč,Borovina,BOPO": "4:41",
+      "Třebíč,Koželužská": "4:41",
       "Třebíč,Borovina,Pražská": "4:42",
       "Třebíč,u aut.nádr.": "4:43",
       "Třebíč,nemocnice": "4:45",
@@ -135,7 +135,7 @@
     "zastavky": {
       "Stařeč,nám.": "5:10",
       "Třebíč,Za Rybníkem": "5:15",
-      "Třebíč,Borovina,BOPO": "5:16",
+      "Třebíč,Koželužská": "5:16",
       "Třebíč,Borovina,Pražská": "5:18",
       "Třebíč,u aut.nádr.": "5:20",
       "Třebíč,nemocnice": "5:22",
@@ -195,7 +195,7 @@
     "zastavky": {
       "Stařeč,nám.": "5:20",
       "Třebíč,Za Rybníkem": "5:25",
-      "Třebíč,Borovina,BOPO": "5:26",
+      "Třebíč,Koželužská": "5:26",
       "Třebíč,Borovina,Pražská": "5:27",
       "Třebíč,u aut.nádr.": "5:29",
       "Třebíč,nemocnice": "5:32",
@@ -308,7 +308,7 @@
     "provoz": "X",
     "zastavky": {
       "Třebíč,Za Rybníkem": "5:45",
-      "Třebíč,Borovina,BOPO": "5:46",
+      "Třebíč,Koželužská": "5:46",
       "Třebíč,Borovina,Pražská": "5:48",
       "Třebíč,u aut.nádr.": "5:50",
       "Třebíč,nemocnice": "5:52",
@@ -326,7 +326,7 @@
     "provoz": "X",
     "zastavky": {
       "Třebíč,Za Rybníkem": "6:15",
-      "Třebíč,Borovina,BOPO": "6:16",
+      "Třebíč,Koželužská": "6:16",
       "Třebíč,Borovina,Pražská": "6:17",
       "Třebíč,u aut.nádr.": "6:18",
       "Třebíč,nemocnice": "6:20",
@@ -478,7 +478,7 @@
     "provoz": "6-7,O",
     "zastavky": {
       "Třebíč,Za Rybníkem": "12:40",
-      "Třebíč,Borovina,BOPO": "12:41",
+      "Třebíč,Koželužská": "12:41",
       "Třebíč,Borovina,Pražská": "12:42",
       "Třebíč,u aut.nádr.": "12:43",
       "Třebíč,nemocnice": "12:46",
@@ -495,7 +495,7 @@
     "provoz": "X,O",
     "zastavky": {
       "Třebíč,Za Rybníkem": "12:40",
-      "Třebíč,Borovina,BOPO": "12:41",
+      "Třebíč,Koželužská": "12:41",
       "Třebíč,Borovina,Pražská": "12:42",
       "Třebíč,u aut.nádr.": "12:43",
       "Třebíč,nemocnice": "12:45",
@@ -561,7 +561,7 @@
     "provoz": "6-7,O",
     "zastavky": {
       "Třebíč,Za Rybníkem": "16:40",
-      "Třebíč,Borovina,BOPO": "16:41",
+      "Třebíč,Koželužská": "16:41",
       "Třebíč,Borovina,Pražská": "16:42",
       "Třebíč,u aut.nádr.": "16:43",
       "Třebíč,nemocnice": "16:45",
@@ -578,7 +578,7 @@
     "provoz": "X,O",
     "zastavky": {
       "Třebíč,Za Rybníkem": "16:40",
-      "Třebíč,Borovina,BOPO": "16:41",
+      "Třebíč,Koželužská": "16:41",
       "Třebíč,Borovina,Pražská": "16:42",
       "Třebíč,u aut.nádr.": "16:43",
       "Třebíč,nemocnice": "16:45",
@@ -616,7 +616,7 @@
     "provoz": "6-7,O",
     "zastavky": {
       "Třebíč,Za Rybníkem": "20:40",
-      "Třebíč,Borovina,BOPO": "20:41",
+      "Třebíč,Koželužská": "20:41",
       "Třebíč,Borovina,Pražská": "20:42",
       "Třebíč,u aut.nádr.": "20:43",
       "Třebíč,nemocnice": "20:45",
@@ -633,7 +633,7 @@
     "provoz": "X",
     "zastavky": {
       "Třebíč,Za Rybníkem": "20:40",
-      "Třebíč,Borovina,BOPO": "20:41",
+      "Třebíč,Koželužská": "20:41",
       "Třebíč,Borovina,Pražská": "20:42",
       "Třebíč,u aut.nádr.": "20:43",
       "Třebíč,nemocnice": "20:45",
@@ -659,7 +659,7 @@
       "Třebíč,U Lípy": "5:55",
       "Třebíč,nemocnice": "5:56",
       "Třebíč,u aut.nádr.": "6:00",
-      "Třebíč,Borovina,BOPO": "6:03",
+      "Třebíč,Koželužská": "6:03",
       "Třebíč,Za Rybníkem": "6:05"
     }
   },
@@ -711,7 +711,7 @@
       "Třebíč,Znojemská": "6:30",
       "Třebíč,u aut.nádr.": "6:35",
       "Třebíč,Borovina,Pražská": "6:37",
-      "Třebíč,Borovina,BOPO": "6:38",
+      "Třebíč,Koželužská": "6:38",
       "Třebíč,Za Rybníkem": "6:40"
     }
   },
@@ -935,7 +935,7 @@
       "Třebíč,nemocnice": "13:10",
       "Třebíč,u aut.nádr.": "13:15",
       "Třebíč,Borovina,Pražská": "13:17",
-      "Třebíč,Borovina,BOPO": "13:18",
+      "Třebíč,Koželužská": "13:18",
       "Třebíč,Za Rybníkem": "13:20",
       "Stařeč,nám.": "13:25"
     }
@@ -962,7 +962,7 @@
       "Třebíč,Znojemská": "13:10",
       "Třebíč,u aut.nádr.": "13:15",
       "Třebíč,Borovina,Pražská": "13:17",
-      "Třebíč,Borovina,BOPO": "13:18",
+      "Třebíč,Koželužská": "13:18",
       "Třebíč,Za Rybníkem": "13:20"
     }
   },
@@ -1031,7 +1031,7 @@
       "Třebíč,Znojemská": "14:30",
       "Třebíč,u aut.nádr.": "14:35",
       "Třebíč,Borovina,Pražská": "14:37",
-      "Třebíč,Borovina,BOPO": "14:38",
+      "Třebíč,Koželužská": "14:38",
       "Třebíč,Za Rybníkem": "14:40"
     }
   },
@@ -1177,7 +1177,7 @@
       "Třebíč,Znojemská": "15:40",
       "Třebíč,u aut.nádr.": "15:45",
       "Třebíč,Borovina,Pražská": "15:47",
-      "Třebíč,Borovina,BOPO": "15:48",
+      "Třebíč,Koželužská": "15:48",
       "Třebíč,Za Rybníkem": "15:50"
     }
   },
@@ -1207,7 +1207,7 @@
       "Třebíč,nemocnice": "15:40",
       "Třebíč,u aut.nádr.": "15:45",
       "Třebíč,Borovina,Pražská": "15:47",
-      "Třebíč,Borovina,BOPO": "15:48",
+      "Třebíč,Koželužská": "15:48",
       "Třebíč,Za Rybníkem": "15:50"
     }
   },
@@ -1282,7 +1282,7 @@
       "Třebíč,Znojemská": "16:00",
       "Třebíč,u aut.nádr.": "16:05",
       "Třebíč,Borovina,Pražská": "16:07",
-      "Třebíč,Borovina,BOPO": "16:08",
+      "Třebíč,Koželužská": "16:08",
       "Třebíč,Za Rybníkem": "16:10"
     }
   },
@@ -1318,7 +1318,7 @@
       "Třebíč,Znojemská": "17:00",
       "Třebíč,u aut.nádr.": "17:05",
       "Třebíč,Borovina,Pražská": "17:07",
-      "Třebíč,Borovina,BOPO": "17:09",
+      "Třebíč,Koželužská": "17:09",
       "Třebíč,Za Rybníkem": "17:10"
     }
   },
