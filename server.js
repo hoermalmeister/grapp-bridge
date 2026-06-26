@@ -660,6 +660,44 @@ app.get('/vdv/route', (req, res) => {
     }
 });
 
+// --- 14. ENDPOINT PRO IREDO (CORS Proxy) ---
+app.get('/iredo', async (req, res) => {
+    try {
+        // Zvětšený Bounding Box pro celý východ ČR
+        const payload = {
+            "w": 14.0,
+            "s": 49.0,
+            "e": 17.0,
+            "n": 51.5,
+            "zoom": 10
+        };
+
+        // Backend posílá dotaz na IREDO (Servery CORS neřeší)
+        const response = await fetch('https://iredo.online/map/mapData', {
+            method: 'POST',
+            headers: {
+                'accept': 'application/json, text/plain, */*',
+                'cache-control': 'no-cache',
+                'content-type': 'application/json',
+                'pragma': 'no-cache',
+                'user-agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36'
+            },
+            body: JSON.stringify(payload)
+        });
+
+        if (!response.ok) {
+            throw new Error(`IREDO API chyba: ${response.status}`);
+        }
+
+        const data = await response.json();
+        // Pošleme data zpět našemu frontendu
+        res.json(data);
+    } catch (error) {
+        console.error("Chyba při stahování IREDO:", error.message);
+        res.status(500).json({ connections: [] });
+    }
+});
+
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, async () => {
     console.log(`GRAPP Můstek naslouchá na portu ${PORT}`);
