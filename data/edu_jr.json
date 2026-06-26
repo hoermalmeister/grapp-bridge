@@ -4,7 +4,7 @@
     "Třebíč,Za Rybníkem":"49.2051544,15.8453131",
     "Třebíč,Koželužská":"49.2062606,15.8553706",
     "Třebíč,Borovina,Pražská":"49.2100028,15.8584872",
-    "Třebíč,u aut.nádr.":"49.2141953,15.8756761",
+    "Třebíč,Sucheniova":"49.2129669,15.8688917",
     "Třebíč,Marie Majerové":"49.2221414,15.8826789",
     "Třebíč,Na Holečku":"49.2257958,15.8763639",
     "Třebíč,Sýpky":"49.2202186,15.8693581",
@@ -76,7 +76,7 @@
       "Třebíč,Za Rybníkem": "4:40",
       "Třebíč,Koželužská": "4:41",
       "Třebíč,Borovina,Pražská": "4:42",
-      "Třebíč,u aut.nádr.": "4:43",
+      "Třebíč,Sucheniova": "4:43",
       "Třebíč,nemocnice": "4:45",
       "Třebíč,Znojemská": "4:48",
       "Valeč": "5:03",
@@ -93,7 +93,7 @@
       "Třebíč,Za Rybníkem": "4:40",
       "Třebíč,Koželužská": "4:41",
       "Třebíč,Borovina,Pražská": "4:42",
-      "Třebíč,u aut.nádr.": "4:43",
+      "Třebíč,Sucheniova": "4:43",
       "Třebíč,nemocnice": "4:45",
       "Třebíč,Znojemská": "4:49",
       "Valeč": "5:03",
@@ -137,7 +137,7 @@
       "Třebíč,Za Rybníkem": "5:15",
       "Třebíč,Koželužská": "5:16",
       "Třebíč,Borovina,Pražská": "5:18",
-      "Třebíč,u aut.nádr.": "5:20",
+      "Třebíč,Sucheniova": "5:20",
       "Třebíč,nemocnice": "5:22",
       "Třebíč,U Lípy": "5:25",
       "Dalešice,rozc.": "5:38",
@@ -197,7 +197,7 @@
       "Třebíč,Za Rybníkem": "5:25",
       "Třebíč,Koželužská": "5:26",
       "Třebíč,Borovina,Pražská": "5:27",
-      "Třebíč,u aut.nádr.": "5:29",
+      "Třebíč,Sucheniova": "5:29",
       "Třebíč,nemocnice": "5:32",
       "Třebenice,hl. sil.": "5:45",
       "Dukovany,EDU": "6:00"
@@ -222,7 +222,7 @@
     "zastavky": {
       "Třebíč,Za Rybníkem": "5:35",
       "Třebíč,Borovina,Pražská": "5:37",
-      "Třebíč,u aut.nádr.": "5:39",
+      "Třebíč,Sucheniova": "5:39",
       "Třebíč,nemocnice": "5:42",
       "Třebíč,Znojemská": "5:45",
       "Třebenice,hl. sil.": "5:55",
@@ -246,7 +246,7 @@
   },
   {
     "linka": "17",
-    "spoj": null,
+    "spoj": "1",
     "provoz": "X",
     "zastavky": {
       "Třebíč,Hotel Atom": "5:40",
@@ -310,7 +310,7 @@
       "Třebíč,Za Rybníkem": "5:45",
       "Třebíč,Koželužská": "5:46",
       "Třebíč,Borovina,Pražská": "5:48",
-      "Třebíč,u aut.nádr.": "5:50",
+      "Třebíč,Sucheniova": "5:50",
       "Třebíč,nemocnice": "5:52",
       "Slavičky": "5:59",
       "Dolní Vilémovice,rozc.": "6:00",
@@ -328,7 +328,7 @@
       "Třebíč,Za Rybníkem": "6:15",
       "Třebíč,Koželužská": "6:16",
       "Třebíč,Borovina,Pražská": "6:17",
-      "Třebíč,u aut.nádr.": "6:18",
+      "Třebíč,Sucheniova": "6:18",
       "Třebíč,nemocnice": "6:20",
       "Třebíč,Znojemská": "6:24",
       "Valeč": "6:35",
@@ -339,7 +339,7 @@
   },
   {
     "linka": "10",
-    "spoj": null,
+    "spoj": "1",
     "provoz": "X",
     "zastavky": {
       "Třebíč,Sýpky": "6:15",
@@ -363,7 +363,7 @@
     "zastavky": {
       "Třebíč,Za Rybníkem": "7:05",
       "Třebíč,Borovina,Pražská": "7:07",
-      "Třebíč,u aut.nádr.": "7:08",
+      "Třebíč,Sucheniova": "7:08",
       "Třebíč,Sýpky": "7:12",
       "Třebíč,Na Holečku": "7:14",
       "Třebíč,Marie Majerové": "7:15",
@@ -387,7 +387,7 @@
     "zastavky": {
       "Třebíč,Za Rybníkem": "8:05",
       "Třebíč,Borovina,Pražská": "8:07",
-      "Třebíč,u aut.nádr.": "8:08",
+      "Třebíč,Sucheniova": "8:08",
       "Třebíč,Sýpky": "8:12",
       "Třebíč,Na Holečku": "8:13",
       "Třebíč,Míčova": "8:15",
@@ -411,7 +411,7 @@
     "zastavky": {
       "Třebíč,Za Rybníkem": "9:05",
       "Třebíč,Borovina,Pražská": "9:07",
-      "Třebíč,u aut.nádr.": "9:08",
+      "Třebíč,Sucheniova": "9:08",
       "Třebíč,Sýpky": "9:12",
       "Třebíč,Na Holečku": "9:13",
       "Třebíč,Míčova": "9:15",
@@ -434,7 +434,7 @@
     "zastavky": {
       "Třebíč,Za Rybníkem": "10:05",
       "Třebíč,Borovina,Pražská": "10:07",
-      "Třebíč,u aut.nádr.": "10:08",
+      "Třebíč,Sucheniova": "10:08",
       "Třebíč,Sýpky": "10:10",
       "Třebíč,Na Holečku": "10:12",
       "Třebíč,Míčova": "10:15",
@@ -480,7 +480,7 @@
       "Třebíč,Za Rybníkem": "12:40",
       "Třebíč,Koželužská": "12:41",
       "Třebíč,Borovina,Pražská": "12:42",
-      "Třebíč,u aut.nádr.": "12:43",
+      "Třebíč,Sucheniova": "12:43",
       "Třebíč,nemocnice": "12:46",
       "Třebíč,Znojemská": "12:49",
       "Valeč": "13:03",
@@ -497,7 +497,7 @@
       "Třebíč,Za Rybníkem": "12:40",
       "Třebíč,Koželužská": "12:41",
       "Třebíč,Borovina,Pražská": "12:42",
-      "Třebíč,u aut.nádr.": "12:43",
+      "Třebíč,Sucheniova": "12:43",
       "Třebíč,nemocnice": "12:45",
       "Třebíč,Znojemská": "12:48",
       "Valeč": "13:03",
@@ -511,7 +511,7 @@
     "spoj": null,
     "provoz": "1-4",
     "zastavky": {
-      "Třebíč,u aut.nádr.": "14:35",
+      "Třebíč,Sucheniova": "14:35",
       "Třebíč,nemocnice": "14:40",
       "Dukovany,EDU": "15:08"
     }
@@ -521,7 +521,7 @@
     "spoj": "3",
     "provoz": "1-4,O",
     "zastavky": {
-      "Třebíč,u aut.nádr.": "15:53",
+      "Třebíč,Sucheniova": "15:53",
       "Třebíč,nemocnice": "15:57",
       "Třebíč,U Lípy": "15:58",
       "Slavičky,Okrašovice,rozc.": "16:03",
@@ -563,7 +563,7 @@
       "Třebíč,Za Rybníkem": "16:40",
       "Třebíč,Koželužská": "16:41",
       "Třebíč,Borovina,Pražská": "16:42",
-      "Třebíč,u aut.nádr.": "16:43",
+      "Třebíč,Sucheniova": "16:43",
       "Třebíč,nemocnice": "16:45",
       "Třebíč,Znojemská": "16:49",
       "Valeč": "17:03",
@@ -580,7 +580,7 @@
       "Třebíč,Za Rybníkem": "16:40",
       "Třebíč,Koželužská": "16:41",
       "Třebíč,Borovina,Pražská": "16:42",
-      "Třebíč,u aut.nádr.": "16:43",
+      "Třebíč,Sucheniova": "16:43",
       "Třebíč,nemocnice": "16:45",
       "Třebíč,Znojemská": "16:49",
       "Valeč": "17:03",
@@ -618,7 +618,7 @@
       "Třebíč,Za Rybníkem": "20:40",
       "Třebíč,Koželužská": "20:41",
       "Třebíč,Borovina,Pražská": "20:42",
-      "Třebíč,u aut.nádr.": "20:43",
+      "Třebíč,Sucheniova": "20:43",
       "Třebíč,nemocnice": "20:45",
       "Třebíč,Znojemská": "20:49",
       "Valeč": "21:03",
@@ -635,7 +635,7 @@
       "Třebíč,Za Rybníkem": "20:40",
       "Třebíč,Koželužská": "20:41",
       "Třebíč,Borovina,Pražská": "20:42",
-      "Třebíč,u aut.nádr.": "20:43",
+      "Třebíč,Sucheniova": "20:43",
       "Třebíč,nemocnice": "20:45",
       "Třebíč,Znojemská": "20:49",
       "Valeč": "21:03",
@@ -658,7 +658,7 @@
       "Slavičky": "5:50",
       "Třebíč,U Lípy": "5:55",
       "Třebíč,nemocnice": "5:56",
-      "Třebíč,u aut.nádr.": "6:00",
+      "Třebíč,Sucheniova": "6:00",
       "Třebíč,Koželužská": "6:03",
       "Třebíč,Za Rybníkem": "6:05"
     }
@@ -694,7 +694,7 @@
       "Dalešice,rozc.": "6:13",
       "Valeč": "6:17",
       "Třebíč,Znojemská": "6:30",
-      "Třebíč,u aut.nádr.": "6:35",
+      "Třebíč,Sucheniova": "6:35",
       "Třebíč,Borovina,Pražská": "6:37",
       "Třebíč,Za Rybníkem": "6:40"
     }
@@ -709,7 +709,7 @@
       "Dalešice,rozc.": "6:13",
       "Valeč": "6:17",
       "Třebíč,Znojemská": "6:30",
-      "Třebíč,u aut.nádr.": "6:35",
+      "Třebíč,Sucheniova": "6:35",
       "Třebíč,Borovina,Pražská": "6:37",
       "Třebíč,Koželužská": "6:38",
       "Třebíč,Za Rybníkem": "6:40"
@@ -727,7 +727,7 @@
       "Dolní Vilémovice,rozc.": "6:41",
       "Slavičky": "6:42",
       "Třebíč,U Lípy": "6:48",
-      "Třebíč,u aut.nádr.": "6:51",
+      "Třebíč,Sucheniova": "6:51",
       "Třebíč,Za Rybníkem": "6:55"
     }
   },
@@ -817,7 +817,7 @@
       "Třebíč,Marie Majerové": "11:19",
       "Třebíč,Na Holečku": "11:20",
       "Třebíč,Sýpky": "11:22",
-      "Třebíč,u aut.nádr.": "11:24",
+      "Třebíč,Sucheniova": "11:24",
       "Třebíč,Borovina,Pražská": "11:27",
       "Třebíč,Za Rybníkem": "11:30"
     }
@@ -865,7 +865,7 @@
   },
   {
     "linka": "6",
-    "spoj": null,
+    "spoj": "8",
     "provoz": "5,O",
     "zastavky": {
       "Dukovany,EDU": "12:10",
@@ -877,7 +877,7 @@
       "Slavičky": "12:32",
       "Třebíč,U Lípy": "12:37",
       "Třebíč,nemocnice": "12:39",
-      "Třebíč,u aut.nádr.": "12:44",
+      "Třebíč,Sucheniova": "12:44",
       "Třebíč,Borovina,Pražská": "12:46",
       "Třebíč,Za Rybníkem": "12:49"
     }
@@ -897,7 +897,7 @@
   },
   {
     "linka": "10",
-    "spoj": null,
+    "spoj": "2",
     "provoz": "5",
     "zastavky": {
       "Dukovany,EDU": "12:45",
@@ -906,7 +906,7 @@
       "Dolní Vilémovice,rozc.": "13:04",
       "Slavičky": "13:05",
       "Slavičky,Okrašovice,rozc.": "13:06",
-      "Třebíč,u aut.nádr.": "13:15"
+      "Třebíč,Sucheniova": "13:15"
     }
   },
   {
@@ -927,13 +927,13 @@
   },
   {
     "linka": "17",
-    "spoj": null,
+    "spoj": "2",
     "provoz": "5",
     "zastavky": {
       "Dukovany,EDU": "12:45",
       "Dalešice,rozc.": "12:53",
       "Třebíč,nemocnice": "13:10",
-      "Třebíč,u aut.nádr.": "13:15",
+      "Třebíč,Sucheniova": "13:15",
       "Třebíč,Borovina,Pražská": "13:17",
       "Třebíč,Koželužská": "13:18",
       "Třebíč,Za Rybníkem": "13:20",
@@ -960,7 +960,7 @@
       "Dukovany,EDU": "12:45",
       "Slavětice": "12:49",
       "Třebíč,Znojemská": "13:10",
-      "Třebíč,u aut.nádr.": "13:15",
+      "Třebíč,Sucheniova": "13:15",
       "Třebíč,Borovina,Pražská": "13:17",
       "Třebíč,Koželužská": "13:18",
       "Třebíč,Za Rybníkem": "13:20"
@@ -981,7 +981,7 @@
       "Třebíč,Marie Majerové": "13:39",
       "Třebíč,Na Holečku": "13:40",
       "Třebíč,Sýpky": "13:41",
-      "Třebíč,u aut.nádr.": "13:43",
+      "Třebíč,Sucheniova": "13:43",
       "Třebíč,Za Rybníkem": "13:47"
     }
   },
@@ -1016,7 +1016,7 @@
       "Dalešice,rozc.": "14:13",
       "Valeč": "14:17",
       "Třebíč,Znojemská": "14:30",
-      "Třebíč,u aut.nádr.": "14:35",
+      "Třebíč,Sucheniova": "14:35",
       "Třebíč,Borovina,Pražská": "14:37",
       "Třebíč,Za Rybníkem": "14:40"
     }
@@ -1029,7 +1029,7 @@
       "Dukovany,EDU": "14:05",
       "Dalešice,rozc.": "14:13",
       "Třebíč,Znojemská": "14:30",
-      "Třebíč,u aut.nádr.": "14:35",
+      "Třebíč,Sucheniova": "14:35",
       "Třebíč,Borovina,Pražská": "14:37",
       "Třebíč,Koželužská": "14:38",
       "Třebíč,Za Rybníkem": "14:40"
@@ -1070,7 +1070,7 @@
       "Valeč": "14:26",
       "Třebíč,Znojemská": "14:30",
       "Třebíč,nemocnice": "14:35",
-      "Třebíč,u aut.nádr.": "14:40",
+      "Třebíč,Sucheniova": "14:40",
       "Třebíč,Borovina,Pražská": "14:42",
       "Třebíč,Za Rybníkem": "14:45",
       "Stařeč,nám.": "14:50"
@@ -1086,7 +1086,7 @@
       "Dalešice,rozc.": "14:25",
       "Valeč": "14:29",
       "Třebíč,Znojemská": "14:43",
-      "Třebíč,u aut.nádr.": "14:47",
+      "Třebíč,Sucheniova": "14:47",
       "Třebíč,Borovina,Pražská": "14:50",
       "Třebíč,Za Rybníkem": "14:52",
       "Stařeč,nám.": "14:55"
@@ -1118,7 +1118,7 @@
       "Slavětice": "15:14",
       "Dalešice,rozc.": "15:18",
       "Třebíč,nemocnice": "15:35",
-      "Třebíč,u aut.nádr.": "15:40",
+      "Třebíč,Sucheniova": "15:40",
       "Třebíč,Borovina,Pražská": "15:42",
       "Třebíč,Za Rybníkem": "15:45",
       "Stařeč,nám.": "15:50"
@@ -1161,7 +1161,7 @@
       "Dolní Vilémovice,rozc.": "15:34",
       "Slavičky": "15:35",
       "Slavičky,Okrašovice,rozc.": "15:36",
-      "Třebíč,u aut.nádr.": "15:45"
+      "Třebíč,Sucheniova": "15:45"
     }
   },
   {
@@ -1175,7 +1175,7 @@
       "Valeč": "15:27",
       "Slavičky": "15:35",
       "Třebíč,Znojemská": "15:40",
-      "Třebíč,u aut.nádr.": "15:45",
+      "Třebíč,Sucheniova": "15:45",
       "Třebíč,Borovina,Pražská": "15:47",
       "Třebíč,Koželužská": "15:48",
       "Třebíč,Za Rybníkem": "15:50"
@@ -1205,7 +1205,7 @@
       "Dukovany,EDU": "15:15",
       "Dalešice,rozc.": "15:23",
       "Třebíč,nemocnice": "15:40",
-      "Třebíč,u aut.nádr.": "15:45",
+      "Třebíč,Sucheniova": "15:45",
       "Třebíč,Borovina,Pražská": "15:47",
       "Třebíč,Koželužská": "15:48",
       "Třebíč,Za Rybníkem": "15:50"
@@ -1267,7 +1267,7 @@
       "Třebíč,Marie Majerové": "15:55",
       "Třebíč,Na Holečku": "15:56",
       "Třebíč,Sýpky": "15:58",
-      "Třebíč,u aut.nádr.": "16:03",
+      "Třebíč,Sucheniova": "16:03",
       "Třebíč,Za Rybníkem": "16:11"
     }
   },
@@ -1280,7 +1280,7 @@
       "Slavětice": "15:39",
       "Dalešice,rozc.": "15:43",
       "Třebíč,Znojemská": "16:00",
-      "Třebíč,u aut.nádr.": "16:05",
+      "Třebíč,Sucheniova": "16:05",
       "Třebíč,Borovina,Pražská": "16:07",
       "Třebíč,Koželužská": "16:08",
       "Třebíč,Za Rybníkem": "16:10"
@@ -1316,7 +1316,7 @@
       "Dalešice,rozc.": "16:43",
       "Valeč": "16:47",
       "Třebíč,Znojemská": "17:00",
-      "Třebíč,u aut.nádr.": "17:05",
+      "Třebíč,Sucheniova": "17:05",
       "Třebíč,Borovina,Pražská": "17:07",
       "Třebíč,Koželužská": "17:09",
       "Třebíč,Za Rybníkem": "17:10"
@@ -1342,7 +1342,7 @@
       "Třebíč,Marie Majerové": "17:09",
       "Třebíč,Na Holečku": "17:10",
       "Třebíč,Sýpky": "17:12",
-      "Třebíč,u aut.nádr.": "17:14",
+      "Třebíč,Sucheniova": "17:14",
       "Třebíč,Borovina,Pražská": "17:16",
       "Třebíč,Za Rybníkem": "17:21"
     }
@@ -1400,7 +1400,7 @@
       "Dalešice,rozc.": "18:13",
       "Valeč": "18:17",
       "Třebíč,Znojemská": "18:30",
-      "Třebíč,u aut.nádr.": "18:35",
+      "Třebíč,Sucheniova": "18:35",
       "Třebíč,Borovina,Pražská": "18:37",
       "Třebíč,Za Rybníkem": "18:40"
     }
@@ -1415,7 +1415,7 @@
       "Dalešice,rozc.": "18:13",
       "Valeč": "18:17",
       "Třebíč,Znojemská": "18:30",
-      "Třebíč,u aut.nádr.": "18:35",
+      "Třebíč,Sucheniova": "18:35",
       "Třebíč,Borovina,Pražská": "18:37",
       "Třebíč,Za Rybníkem": "18:40"
     }
@@ -1452,7 +1452,7 @@
       "Dalešice,rozc.": "22:13",
       "Valeč": "22:17",
       "Třebíč,Znojemská": "22:30",
-      "Třebíč,u aut.nádr.": "22:35",
+      "Třebíč,Sucheniova": "22:35",
       "Třebíč,Borovina,Pražská": "22:37",
       "Třebíč,Za Rybníkem": "22:40"
     }
