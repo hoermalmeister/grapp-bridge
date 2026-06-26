@@ -2,8 +2,8 @@ name: VDV Shapes Routing (Segmented)
 
 on:
   schedule:
-    - cron: '0 2 * * 6' # Každou sobotu ve 2:00 ráno
-  workflow_dispatch: # Možnost manuálního spuštění
+    - cron: '0 2 * * 6' # Každou sobotu
+  workflow_dispatch:
 
 jobs:
   build-shapes:
@@ -13,26 +13,22 @@ jobs:
       - name: Checkout repozitáře
         uses: actions/checkout@v4
 
-      - name: Instalace Node.js
-        uses: actions/setup-node@v4
+      - name: Setup Python
+        uses: actions/setup-python@v5
         with:
-          node-version: '20'
+          python-version: '3.10'
+          cache: 'pip'
 
-      - name: Stáhnout a rozbalit GTFS (Linux Native)
-        run: |
-          mkdir -p gtfs_raw
-          curl -L -f -o gtfs.zip https://www.spojenka.cz/jrdata/jizdnirady-gtfs.zip
-          unzip -o gtfs.zip -d gtfs_raw stops.txt routes.txt trips.txt stop_times.txt
-          rm gtfs.zip
+      - name: Instalace závislostí
+        run: pip install pandas requests
 
       - name: Generování tras po segmentech
-        run: node scripts/update_vdv_shapes.js
+        run: python scripts/build_vdv_shapes.py
 
       - name: Commit a Push změn
         run: |
           git config --global user.name "github-actions[bot]"
           git config --global user.email "github-actions[bot]@users.noreply.github.com"
-          # Přidáno -f (force) pro případ, že by data/ byla v .gitignore
           git add -f data/vdv_segments.json data/vdv_trips.json
-          git commit -m "🤖 Automatická aktualizace VDV tras (segmenty)" || echo "Žádné změny k uložení"
+          git commit -m "🤖 Inkrementální aktualizace VDV tras" || echo "Žádné změny k uložení"
           git push
