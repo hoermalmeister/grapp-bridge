@@ -724,6 +724,49 @@ app.get('/iredo/detail', async (req, res) => {
     }
 });
 
+// --- 16. ENDPOINT PRO IDSOK (CORS Proxy) ---
+app.get('/idsok', async (req, res) => {
+    try {
+        const response = await fetch('https://cestujok.cz/idspublicservices/api/service/position', {
+            method: 'GET',
+            headers: {
+                'accept': 'application/json, text/plain, */*',
+                'user-agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36'
+            }
+        });
+
+        if (!response.ok) throw new Error(`IDSOK API chyba: ${response.status}`);
+        const data = await response.json();
+        res.json(data);
+    } catch (error) {
+        console.error("Chyba při stahování IDSOK:", error.message);
+        res.status(500).json([]);
+    }
+});
+
+// --- 17. ENDPOINT PRO IDSOK DETAIL (CORS Proxy) ---
+app.get('/idsok/detail', async (req, res) => {
+    try {
+        const { id } = req.query;
+        if (!id) return res.status(400).json({ error: "Chybí ID spoje" });
+
+        const response = await fetch(`https://cestujok.cz/idspublicservices/api/servicedetail?id=${id}`, {
+            method: 'GET',
+            headers: {
+                'accept': 'application/json, text/plain, */*',
+                'user-agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36'
+            }
+        });
+
+        if (!response.ok) throw new Error(`IDSOK Detail API chyba: ${response.status}`);
+        const data = await response.json();
+        res.json(data);
+    } catch (error) {
+        console.error("Chyba při stahování IDSOK detailu:", error.message);
+        res.status(500).json({ error: "Chyba API" });
+    }
+});
+
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, async () => {
     console.log(`GRAPP Můstek naslouchá na portu ${PORT}`);
