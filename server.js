@@ -802,11 +802,12 @@ app.get('/duk', async (req, res) => {
 });
 
 // --- 19. ENDPOINT PRO DÚK DETAIL (CORS Proxy) ---
-app.post('/duk/detail', async (req, res) => {
+app.get('/duk/detail', async (req, res) => {
     try {
-        const { id } = req.body;
+        const { id } = req.query; // Čteme bezpečně z URL (např. /duk/detail?id=454)
         if (!id) return res.status(400).json({ error: "Chybí ID vozu" });
 
+        // DÚK server vyžaduje POST, takže Můstek to zařídí
         const response = await fetch('https://provoz.kr-ustecky.cz/TMD/ItemDetails/Get', {
             method: 'POST',
             headers: {
@@ -814,9 +815,12 @@ app.post('/duk/detail', async (req, res) => {
                 'content-type': 'application/json; charset=UTF-8',
                 'user-agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36',
                 'origin': 'https://provoz.kr-ustecky.cz',
-                'referer': 'https://provoz.kr-ustecky.cz/TMD'
+                'referer': 'https://provoz.kr-ustecky.cz/TMD',
+                // Přidáno pro uklidnění ASP.NET serveru
+                'cookie': 'MapPref_0={"AutoDetectLocation":false}; ASP.NET_SessionId=dummy123456789'
             },
-            body: JSON.stringify({ ID: parseInt(id, 10) })
+            // DÚK očekává v JSONu klíč jako velké "ID"
+            body: JSON.stringify({ ID: parseInt(id, 10) }) 
         });
 
         if (!response.ok) throw new Error(`DÚK Detail API chyba: ${response.status}`);
