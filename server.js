@@ -698,6 +698,32 @@ app.get('/iredo', async (req, res) => {
     }
 });
 
+// --- 15. ENDPOINT PRO IREDO DETAIL SPOJE (CORS Proxy) ---
+app.get('/iredo/detail', async (req, res) => {
+    try {
+        const { id } = req.query; // Přijde např. "S-662311-23"
+        if (!id) return res.status(400).json({ error: "Chybí ID spoje" });
+
+        const response = await fetch(`https://iredo.online/oredo/detail/${id}?geom=true`, {
+            method: 'GET',
+            headers: {
+                'accept': 'application/json, text/plain, */*',
+                'user-agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36'
+            }
+        });
+
+        if (!response.ok) {
+            throw new Error(`IREDO Detail API chyba: ${response.status}`);
+        }
+
+        const data = await response.json();
+        res.json(data);
+    } catch (error) {
+        console.error("Chyba při stahování IREDO detailu:", error.message);
+        res.status(500).json({ error: "Chyba API" });
+    }
+});
+
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, async () => {
     console.log(`GRAPP Můstek naslouchá na portu ${PORT}`);
