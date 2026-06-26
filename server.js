@@ -860,75 +860,52 @@ app.get('/duk/route', async (req, res) => {
 
         if (rawPoints.length === 0) return res.json([]);
 
-        // 1. Očištění na [lon, lat]
-        let coords = rawPoints.map(p => [p.Lng, p.Lat]);
+        // 1. Získáme pouze platné body a ponecháme si jejich ID pro řazení
+        let points = rawPoints
+            .filter(p => p.Lat !== 0 && p.Lng !== 0) // Zabezpečení proti bodu 0,0
+            .map(p => ({ id: p.ID, lon: p.Lng, lat: p.Lat }));
 
-        // 2. ODSTRANĚNÍ EXTRÉMNÍCH CHYB GPS (Outlier filter)
-        // Definujeme maximální povolený skok k nejbližšímu sousedovi (cca 5-6 km v toleranci stupňů)
-        const MAX_JUMP_SQ = 0.003; 
-        
-        coords = coords.filter((p1, i, arr) => {
+        // 2. FILTR "OSAMĚLÝCH VLKŮ" (Řeší ty 50km skoky)
+        // Změříme vzdálenost každého bodu k jeho absolutně nejbližšímu sousedovi.
+        // Pokud autobus hodí falešnou GPS 50 km pryč, tento bod nebude mít v okruhu 5 km 
+        // žádného souseda. Takový chybný bod okamžitě nemilosrdně smažeme.
+        const MAX_JUMP_SQ = 0.003; // Zhruba 5 km v toleranci stupňů
+
+        points = points.filter((p1, i, arr) => {
             let minD = Infinity;
             for (let j = 0; j < arr.length; j++) {
                 if (i === j) continue;
-                const dx = p1[0] - arr[j][0];
-                const dy = p1[1] - arr[j][1];
+                const dx = p1.lon - arr[j].lon;
+                const dy = p1.lat - arr[j].lat;
                 const d = dx * dx + dy * dy;
                 if (d < minD) minD = d;
             }
-            // Pokud nemá bod souseda blíž než 5 km, je to 50km ustřelený nesmysl a smažeme ho
+            // Bod přežije pouze tehdy, pokud má alespoň jednoho souseda blíž než 5 km
             return minD < MAX_JUMP_SQ;
         });
 
-        if (coords.length === 0) return res.json([]);
+        // 3. SPRÁVNÉ ZACHOVÁNÍ ZÁVLEKŮ (Řazení)
+        // Jakmile máme data bezchybně čistá, seřadíme je podle ID od DÚKu.
+        // Tím zajistíme, že se správně nakreslí všechny smyčky, odbočky i kruhové objezdy.
+        points.sort((a, b) => a.id - b.id);
 
-        // 3. NALEZENÍ SKUTEČNÉHO STARTU (Dva od sebe nejvzdálenější body)
-        let maxDist = -1;
-        let startIndex = 0;
-        
-        for (let i = 0; i < coords.length; i++) {
-            for (let j = i + 1; j < coords.length; j++) {
-                const dx = coords[i][0] - coords[j][0];
-                const dy = coords[i][1] - coords[j][1];
-                const d = dx * dx + dy * dy;
-                if (d > maxDist) {
-                    maxDist = d;
-                    // Jeden z těchto dvou koncových bodů zvolíme jako náš start
-                    startIndex = i; 
-                }
+        // 4. Extra ochrana proti přerušení trasy
+        const finalRoute = [];
+        for (let i = 0; i < points.length; i++) {
+            if (finalRoute.length > 0) {
+                const lastValid = finalRoute[finalRoute.length - 1];
+                const dx = points[i].lon - lastValid[0];
+                const dy = points[i].lat - lastValid[1];
+                const distSq = dx * dx + dy * dy;
+                
+                // Kdyby nějaký extrémní skok (nad 10 km) přesto přežil, přeskočíme ho
+                if (distSq > 0.01) continue; 
             }
+            finalRoute.push([points[i].lon, points[i].lat]);
         }
 
-        // 4. SEŘAZENÍ (Algoritmus Nejbližšího souseda / Nearest Neighbor)
-        const unvisited = [...coords];
-        const sorted = [];
-        
-        // Začneme na nalezeném konci trasy
-        let current = unvisited.splice(startIndex, 1)[0];
-        sorted.push(current);
-
-        while (unvisited.length > 0) {
-            let minDist = Infinity;
-            let nearestIndex = 0;
-
-            for (let i = 0; i < unvisited.length; i++) {
-                const pt = unvisited[i];
-                const dx = current[0] - pt[0];
-                const dy = current[1] - pt[1];
-                const dist = dx * dx + dy * dy;
-
-                if (dist < minDist) {
-                    minDist = dist;
-                    nearestIndex = i;
-                }
-            }
-
-            // Napojíme a přesuneme se na nejbližší bod
-            current = unvisited.splice(nearestIndex, 1)[0];
-            sorted.push(current);
-        }
-
-        res.json(sorted);
+        // Vracíme čisté, chronologické a bezchybné pole na frontend
+        res.json(finalRoute);
     } catch (error) {
         console.error("Chyba při stahování/řazení DÚK trasy:", error.message);
         res.status(500).json([]);
