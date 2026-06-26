@@ -30,6 +30,6 @@ jobs:
           git config --global user.name "github-actions[bot]"
           git config --global user.email "github-actions[bot]@users.noreply.github.com"
           git add -f data/vdv_segments.json data/vdv_trips.json
-          git commit -m "🤖 Inkrementální aktualizace VDV tras" || echo "Žádné změny k uložení"
+          git commit -m "Inkrementální aktualizace VDV tras" || echo "Žádné změny k uložení"
           git pull --rebase origin main
           git push
