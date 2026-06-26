@@ -834,6 +834,36 @@ app.get('/duk/detail', async (req, res) => {
     }
 });
 
+// --- 20. ENDPOINT PRO DÚK TRASU SPOJE (CORS Proxy) ---
+app.get('/duk/route', async (req, res) => {
+    try {
+        const { id } = req.query; // Přebíráme čisté číslo z URL (např. 914)
+        if (!id) return res.status(400).json({ error: "Chybí ID vozu" });
+
+        const response = await fetch('https://provoz.kr-ustecky.cz/TMD/API/Map/GetVhcTraceMarkers', {
+            method: 'POST',
+            headers: {
+                'accept': 'application/json, text/javascript, */*; q=0.01',
+                'content-type': 'application/json; charset=UTF-8',
+                'user-agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36',
+                'origin': 'https://provoz.kr-ustecky.cz',
+                'referer': 'https://provoz.kr-ustecky.cz/TMD',
+                'cookie': 'MapPref_0={"AutoDetectLocation":false}; ASP.NET_SessionId=dummy123456789'
+            },
+            // DÚK vyžaduje parametr VhcID
+            body: JSON.stringify({ VhcID: parseInt(id, 10) })
+        });
+
+        if (!response.ok) throw new Error(`DÚK Route API chyba: ${response.status}`);
+        
+        const data = await response.json();
+        res.json(data);
+    } catch (error) {
+        console.error("Chyba při stahování DÚK trasy:", error.message);
+        res.status(500).json({ ItemL: [] });
+    }
+});
+
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, async () => {
     console.log(`GRAPP Můstek naslouchá na portu ${PORT}`);
