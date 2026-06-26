@@ -858,29 +858,52 @@ app.get('/duk/route', async (req, res) => {
         const data = await response.json();
         const rawPoints = data.ItemL || [];
 
-        if (rawPoints.length === 0) {
-            return res.json([]); // Žádné body k vykreslení
-        }
+        if (rawPoints.length === 0) return res.json([]);
 
-        // 1. Extrahujeme pouze souřadnice do formátu [lon, lat]
-        const coords = rawPoints.map(p => [p.Lng, p.Lat]);
+        // 1. Očištění na [lon, lat]
+        let coords = rawPoints.map(p => [p.Lng, p.Lat]);
 
-        // 2. Najdeme startovní bod (např. ten nejvíce na západ)
-        // Toto zaručí, že algoritmus nezačne uprostřed trasy, což by způsobilo skok.
-        let minX = Infinity;
-        let startIndex = 0;
-        coords.forEach((p, i) => {
-            if (p[0] < minX) {
-                minX = p[0];
-                startIndex = i;
+        // 2. ODSTRANĚNÍ EXTRÉMNÍCH CHYB GPS (Outlier filter)
+        // Definujeme maximální povolený skok k nejbližšímu sousedovi (cca 5-6 km v toleranci stupňů)
+        const MAX_JUMP_SQ = 0.003; 
+        
+        coords = coords.filter((p1, i, arr) => {
+            let minD = Infinity;
+            for (let j = 0; j < arr.length; j++) {
+                if (i === j) continue;
+                const dx = p1[0] - arr[j][0];
+                const dy = p1[1] - arr[j][1];
+                const d = dx * dx + dy * dy;
+                if (d < minD) minD = d;
             }
+            // Pokud nemá bod souseda blíž než 5 km, je to 50km ustřelený nesmysl a smažeme ho
+            return minD < MAX_JUMP_SQ;
         });
 
-        // 3. Algoritmus Nearest Neighbor (Nejbližší soused)
+        if (coords.length === 0) return res.json([]);
+
+        // 3. NALEZENÍ SKUTEČNÉHO STARTU (Dva od sebe nejvzdálenější body)
+        let maxDist = -1;
+        let startIndex = 0;
+        
+        for (let i = 0; i < coords.length; i++) {
+            for (let j = i + 1; j < coords.length; j++) {
+                const dx = coords[i][0] - coords[j][0];
+                const dy = coords[i][1] - coords[j][1];
+                const d = dx * dx + dy * dy;
+                if (d > maxDist) {
+                    maxDist = d;
+                    // Jeden z těchto dvou koncových bodů zvolíme jako náš start
+                    startIndex = i; 
+                }
+            }
+        }
+
+        // 4. SEŘAZENÍ (Algoritmus Nejbližšího souseda / Nearest Neighbor)
         const unvisited = [...coords];
         const sorted = [];
         
-        // Začneme tím nejzápadnějším bodem
+        // Začneme na nalezeném konci trasy
         let current = unvisited.splice(startIndex, 1)[0];
         sorted.push(current);
 
@@ -890,7 +913,6 @@ app.get('/duk/route', async (req, res) => {
 
             for (let i = 0; i < unvisited.length; i++) {
                 const pt = unvisited[i];
-                // Jednoduchá Pytagorova věta (bez odmocniny pro maximální rychlost výpočtu)
                 const dx = current[0] - pt[0];
                 const dy = current[1] - pt[1];
                 const dist = dx * dx + dy * dy;
@@ -901,12 +923,11 @@ app.get('/duk/route', async (req, res) => {
                 }
             }
 
-            // Přesuneme nejbližší bod do seřazeného pole a jdeme hledat dál od něj
+            // Napojíme a přesuneme se na nejbližší bod
             current = unvisited.splice(nearestIndex, 1)[0];
             sorted.push(current);
         }
 
-        // Frontend teď dostane krásně uhlazené a pospojované pole bodů
         res.json(sorted);
     } catch (error) {
         console.error("Chyba při stahování/řazení DÚK trasy:", error.message);
