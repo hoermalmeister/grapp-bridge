@@ -837,7 +837,7 @@ app.get('/duk/detail', async (req, res) => {
 // --- 20. ENDPOINT PRO DÚK TRASU SPOJE (CORS Proxy) ---
 app.get('/duk/route', async (req, res) => {
     try {
-        const { id } = req.query; // Přebíráme čisté číslo z URL (např. 914)
+        const { id } = req.query;
         if (!id) return res.status(400).json({ error: "Chybí ID vozu" });
 
         const response = await fetch('https://provoz.kr-ustecky.cz/TMD/API/Map/GetVhcTraceMarkers', {
@@ -850,17 +850,67 @@ app.get('/duk/route', async (req, res) => {
                 'referer': 'https://provoz.kr-ustecky.cz/TMD',
                 'cookie': 'MapPref_0={"AutoDetectLocation":false}; ASP.NET_SessionId=dummy123456789'
             },
-            // DÚK vyžaduje parametr VhcID
             body: JSON.stringify({ VhcID: parseInt(id, 10) })
         });
 
         if (!response.ok) throw new Error(`DÚK Route API chyba: ${response.status}`);
         
         const data = await response.json();
-        res.json(data);
+        const rawPoints = data.ItemL || [];
+
+        if (rawPoints.length === 0) {
+            return res.json([]); // Žádné body k vykreslení
+        }
+
+        // 1. Extrahujeme pouze souřadnice do formátu [lon, lat]
+        const coords = rawPoints.map(p => [p.Lng, p.Lat]);
+
+        // 2. Najdeme startovní bod (např. ten nejvíce na západ)
+        // Toto zaručí, že algoritmus nezačne uprostřed trasy, což by způsobilo skok.
+        let minX = Infinity;
+        let startIndex = 0;
+        coords.forEach((p, i) => {
+            if (p[0] < minX) {
+                minX = p[0];
+                startIndex = i;
+            }
+        });
+
+        // 3. Algoritmus Nearest Neighbor (Nejbližší soused)
+        const unvisited = [...coords];
+        const sorted = [];
+        
+        // Začneme tím nejzápadnějším bodem
+        let current = unvisited.splice(startIndex, 1)[0];
+        sorted.push(current);
+
+        while (unvisited.length > 0) {
+            let minDist = Infinity;
+            let nearestIndex = 0;
+
+            for (let i = 0; i < unvisited.length; i++) {
+                const pt = unvisited[i];
+                // Jednoduchá Pytagorova věta (bez odmocniny pro maximální rychlost výpočtu)
+                const dx = current[0] - pt[0];
+                const dy = current[1] - pt[1];
+                const dist = dx * dx + dy * dy;
+
+                if (dist < minDist) {
+                    minDist = dist;
+                    nearestIndex = i;
+                }
+            }
+
+            // Přesuneme nejbližší bod do seřazeného pole a jdeme hledat dál od něj
+            current = unvisited.splice(nearestIndex, 1)[0];
+            sorted.push(current);
+        }
+
+        // Frontend teď dostane krásně uhlazené a pospojované pole bodů
+        res.json(sorted);
     } catch (error) {
-        console.error("Chyba při stahování DÚK trasy:", error.message);
-        res.status(500).json({ ItemL: [] });
+        console.error("Chyba při stahování/řazení DÚK trasy:", error.message);
+        res.status(500).json([]);
     }
 });
 
