@@ -767,6 +767,40 @@ app.get('/idsok/detail', async (req, res) => {
     }
 });
 
+// --- 18. ENDPOINT PRO DÚK (CORS Proxy) ---
+app.get('/duk', async (req, res) => {
+    try {
+        const payload = {
+            "Reload": false,
+            "ShowMissingRides": true,
+            "ShowVhcMarkersMinimized": true,
+            "ShowVhcMarkersOwnColored": false,
+            "SifterCarrierIDs": "",
+            "SifterProviderIDs": ""
+        };
+
+        const response = await fetch('https://provoz.kr-ustecky.cz/TMD/API/Map/GetVhcMarkers', {
+            method: 'POST',
+            headers: {
+                'accept': 'application/json, text/javascript, */*; q=0.01',
+                'content-type': 'application/json; charset=UTF-8',
+                'user-agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36',
+                'origin': 'https://provoz.kr-ustecky.cz',
+                'referer': 'https://provoz.kr-ustecky.cz/TMD'
+            },
+            body: JSON.stringify(payload)
+        });
+
+        if (!response.ok) throw new Error(`DÚK API chyba: ${response.status}`);
+        
+        const data = await response.json();
+        res.json(data);
+    } catch (error) {
+        console.error("Chyba při stahování DÚK:", error.message);
+        res.status(500).json({ ItemL: [] });
+    }
+});
+
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, async () => {
     console.log(`GRAPP Můstek naslouchá na portu ${PORT}`);
