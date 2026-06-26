@@ -429,7 +429,7 @@
   },
   {
     "linka": "18",
-    "spoj": null,
+    "spoj": "3",
     "provoz": "X,O",
     "zastavky": {
       "Třebíč,Za Rybníkem": "10:05",
@@ -942,7 +942,7 @@
   },
   {
     "linka": "18",
-    "spoj": null,
+    "spoj": "4",
     "provoz": "5",
     "zastavky": {
       "Dukovany,EDU": "12:45",
