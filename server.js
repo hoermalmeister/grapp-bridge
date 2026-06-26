@@ -801,6 +801,35 @@ app.get('/duk', async (req, res) => {
     }
 });
 
+// --- 19. ENDPOINT PRO DÚK DETAIL (CORS Proxy) ---
+app.post('/duk/detail', async (req, res) => {
+    try {
+        const { id } = req.body;
+        if (!id) return res.status(400).json({ error: "Chybí ID vozu" });
+
+        const response = await fetch('https://provoz.kr-ustecky.cz/TMD/ItemDetails/Get', {
+            method: 'POST',
+            headers: {
+                'accept': '*/*',
+                'content-type': 'application/json; charset=UTF-8',
+                'user-agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36',
+                'origin': 'https://provoz.kr-ustecky.cz',
+                'referer': 'https://provoz.kr-ustecky.cz/TMD'
+            },
+            body: JSON.stringify({ ID: parseInt(id, 10) })
+        });
+
+        if (!response.ok) throw new Error(`DÚK Detail API chyba: ${response.status}`);
+        
+        // Zde vracíme čisté HTML, nikoliv JSON
+        const html = await response.text(); 
+        res.send(html);
+    } catch (error) {
+        console.error("Chyba při stahování DÚK detailu:", error.message);
+        res.status(500).send("");
+    }
+});
+
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, async () => {
     console.log(`GRAPP Můstek naslouchá na portu ${PORT}`);
