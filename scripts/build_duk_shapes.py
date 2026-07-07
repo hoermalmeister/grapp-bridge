@@ -34,25 +34,23 @@ def run():
     
     trip_map = trips.set_index('trip_id')['cisjr_full_id'].to_dict()
 
-    print(" -> Generuji slovník linkospojů pro živou mapu...")
-    if 'route_short_name' in routes.columns:
-        short_name_map = routes.set_index('route_id')['route_short_name'].astype(str).to_dict()
-        trips['short_name'] = trips['route_id'].map(short_name_map)
-        
-        # Filtrujeme platné spoje
-        dict_trips = trips.dropna(subset=['short_name', 'cisjr_trip_num', 'cisjr_route']).copy()
-        
-        # Vytvoříme identifikátor ze živých dat, např. "486_151"
-        dict_trips['live_id'] = dict_trips['short_name'] + "_" + dict_trips['cisjr_trip_num']
-        
-        # Namapujeme live_id na 6místnou linku (cisjr_route), např. "486_151" -> "522486"
-        linkospoj_dict = dict_trips.set_index('live_id')['cisjr_route'].to_dict()
-        
-        with open(LINKOSPOJ_FILE, "w", encoding="utf-8") as f:
-            json.dump(linkospoj_dict, f, separators=(',', ':'))
-        print(f"    Slovník úspěšně uložen do {LINKOSPOJ_FILE} ({len(linkospoj_dict)} záznamů).")
-    else:
-        print("    POZOR: Sloupec 'route_short_name' nenalezen, slovník nebyl vytvořen.")
+    print(" -> Generuji slovník linkospojů ve tvaru 6místná_linka_spoj...")
+    dict_trips = trips.dropna(subset=['cisjr_route', 'cisjr_trip_num']).copy()
+    
+    # Oříznutí prvních 3 znaků z cisjr_route (zůstanou poslední 3 číslice jako klíč)
+    dict_trips['short_key'] = dict_trips['cisjr_route'].str[-3:]
+    
+    # Klíč pro živá data, např. "486_151"
+    dict_trips['live_id'] = dict_trips['short_key'] + "_" + dict_trips['cisjr_trip_num']
+    
+    # Hodnota ve slovníku bude plný formát CISJR linky a spoje, např. "522486_151"
+    dict_trips['full_cisjr_link_trip'] = dict_trips['cisjr_route'] + "_" + dict_trips['cisjr_trip_num']
+    
+    linkospoj_dict = dict_trips.set_index('live_id')['full_cisjr_link_trip'].to_dict()
+    
+    with open(LINKOSPOJ_FILE, "w", encoding="utf-8") as f:
+        json.dump(linkospoj_dict, f, separators=(',', ':'))
+    print(f"    Slovník úspěšně uložen do {LINKOSPOJ_FILE} ({len(linkospoj_dict)} záznamů).")
     
     print("3. Generuji sekvence a unikátní segmenty...")
     stop_times['cisjr_full_id'] = stop_times['trip_id'].map(trip_map)
