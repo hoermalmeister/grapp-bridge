@@ -7,6 +7,7 @@ import os
 BASE_URL = "https://hoermalmeister.github.io/gtfs-rehost/duk/"
 SEGMENTS_FILE = "data/duk_segments.json"
 TRIPS_FILE = "data/duk_trips.json"
+LINKOSPOJ_FILE = "data/duk_linkospoje.json"
 
 # Ujistíme se, že složka existuje
 os.makedirs("data", exist_ok=True)
