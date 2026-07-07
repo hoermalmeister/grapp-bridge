@@ -23,34 +23,66 @@ def run():
     stops = stops.dropna(subset=['stop_lon', 'stop_lat'])
     stops_clean = stops.set_index('stop_id')
 
-    # Vyhledání 6místných CISJR linek a spojů
-    routes['cisjr_route'] = routes['relations'].astype(str).str.extract(r'CISJR:(\d{6})')
-    route_map = routes.dropna(subset=['cisjr_route']).set_index('route_id')['cisjr_route'].to_dict()
+    # Vyhledání 6místných CISJR linek z relations nebo fallback na short_name
+    if 'relations' in routes.columns:
+        routes['cisjr_route'] = routes['relations'].astype(str).str.extract(r'CISJR:(\d{6})')[0]
+    else:
+        routes['cisjr_route'] = pd.Series([None] * len(routes))
+
+    # Fallback: pokud v relations není CISJR, zkusíme vzít route_short_name a doplnit nuly/zpracovat
+    if 'route_short_name' in routes.columns:
+        mask = routes['cisjr_route'].isna()
+        routes.loc[mask, 'cisjr_route'] = routes.loc[mask, 'route_short_name'].astype(str).str.extract(r'(\d+)')[0]
+
+    route_map = routes.dropna(subset=['cisjr_route']).set_index('route_id')['cisjr_route'].astype(str).to_dict()
     
     trips['cisjr_route'] = trips['route_id'].map(route_map)
-    trips['cisjr_trip_num'] = trips['relations'].astype(str).str.extract(r'CISJR:(\d+)')
-    trips = trips.dropna(subset=['cisjr_route', 'cisjr_trip_num'])
-    trips['cisjr_full_id'] = trips['cisjr_route'] + "_" + trips['cisjr_trip_num']
     
-    trip_map = trips.set_index('trip_id')['cisjr_full_id'].to_dict()
+    # Získání čísla spoje z relations v tripsu
+    if 'relations' in trips.columns:
+        trips['cisjr_trip_num'] = trips['relations'].astype(str).str.extract(r'CISJR:(\d+)')[0]
+    else:
+        trips['cisjr_trip_num'] = pd.Series([None] * len(trips))
 
+    # Ošetření NaN / záložní extrakce pro číslo spoje
+    trips['cisjr_trip_num'] = trips['cisjr_trip_num'].fillna(trips['trip_id'].astype(str))
+    
+    trips_clean_map = trips.dropna(subset=['cisjr_route', 'cisjr_trip_num']).copy()
+    trip_map = trips_clean_m = trips_clean_map.set_index('trip_id')[['cisjr_route', 'cisjr_trip_num']].apply(lambda x: f"{x['cisjr_route']}_{x['cisjr_trip_num']}", axis=1).to_dict()
+    
+    # Propojíme zpět do trips
+    trips['cisjr_full_id'] = trips['trip_id'].map(trip_map)
+    trips = trips.dropna(subset=['cisjr_route', 'cisjr_trip_num'])
+
+    # ZÁPIS SLOVNÍKU LINKOSPOJŮ
     print(" -> Generuji slovník linkospojů ve tvaru 6místná_linka_spoj...")
-    dict_trips = trips.dropna(subset=['cisjr_route', 'cisjr_trip_num']).copy()
+    linkospoj_dict = {}
     
-    # Oříznutí prvních 3 znaků z cisjr_route (zůstanou poslední 3 číslice jako klíč)
-    dict_trips['short_key'] = dict_trips['cisjr_route'].str[-3:]
-    
-    # Klíč pro živá data, např. "486_151"
-    dict_trips['live_id'] = dict_trips['short_key'] + "_" + dict_trips['cisjr_trip_num']
-    
-    # Hodnota ve slovníku bude plný formát CISJR linky a spoje, např. "522486_151"
-    dict_trips['full_cisjr_link_trip'] = dict_trips['cisjr_route'] + "_" + dict_trips['cisjr_trip_num']
-    
-    linkospoj_dict = dict_trips.set_index('live_id')['full_cisjr_link_trip'].to_dict()
-    
+    # Zjistíme krátký název linky z routes (fallback na ořez 6místného kódu)
+    if 'route_short_name' in routes.columns:
+        r_short = routes.set_index('route_id')['route_short_name'].astype(str).to_dict()
+    else:
+        r_short = {rid: r[-3:] for rid, r in route_map.items()}
+
+    for _, row in trips.iterrows():
+        r_id = row['route_id']
+        full_route = str(row['cisjr_route'])
+        trip_num = str(row['cisjr_trip_num'])
+        
+        if full_route and trip_num and full_route != 'nan':
+            # Získáme krátký klíč (poslední 3 číslice z plné linky nebo z route_short_name)
+            short_key = r_short.get(r_id, full_route[-3:])
+            if not short_key or short_key == 'nan':
+                short_key = full_route[-3:]
+                
+            live_id = f"{short_key}_{trip_num}"
+            full_val = f"{full_route}_{trip_num}"
+            linkospoj_dict[live_id] = full_val
+
+    print(f"    > Vygenerováno záznamů pro slovník: {len(linkospoj_dict)}")
     with open(LINKOSPOJ_FILE, "w", encoding="utf-8") as f:
         json.dump(linkospoj_dict, f, separators=(',', ':'))
-    print(f"    Slovník úspěšně uložen do {LINKOSPOJ_FILE} ({len(linkospoj_dict)} záznamů).")
+    print(f"    Slovník úspěšně uložen do {LINKOSPOJ_FILE}.")
     
     print("3. Generuji sekvence a unikátní segmenty...")
     stop_times['cisjr_full_id'] = stop_times['trip_id'].map(trip_map)
