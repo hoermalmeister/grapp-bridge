@@ -912,6 +912,42 @@ app.get('/duk/route', async (req, res) => {
     }
 });
 
+// --- 21. IDPK Můstek ---
+// 1. Všechna vozidla
+app.get('/idpk', async (req, res) => {
+    try {
+        const response = await fetch('https://pvvd.idpk.cz/Ajax/GetPoints');
+        const data = await response.json();
+        res.json(data);
+    } catch (e) {
+        res.status(500).send('Error');
+    }
+});
+
+// 2. Detail vozu
+app.get('/idpk/detail', async (req, res) => {
+    try {
+        const id = req.query.id;
+        const response = await fetch(`https://pvvd.idpk.cz/Ajax/OpenInfoWindow?id=${id}`);
+        const text = await response.text();
+        res.send(text);
+    } catch (e) {
+        res.status(500).send('Error');
+    }
+});
+
+// 3. Jízdní řád
+app.get('/idpk/timetable', async (req, res) => {
+    try {
+        const id = req.query.id;
+        const response = await fetch(`https://pvvd.idpk.cz/Ajax/GetTimetable?vehicleNumber=${id}&currentStopId=0`);
+        const text = await response.text();
+        res.send(text);
+    } catch (e) {
+        res.status(500).send('Error');
+    }
+});
+
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, async () => {
     console.log(`GRAPP Můstek naslouchá na portu ${PORT}`);
