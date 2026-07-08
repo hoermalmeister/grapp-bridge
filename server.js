@@ -913,18 +913,60 @@ app.get('/duk/route', async (req, res) => {
 });
 
 // --- 21. IDPK Můstek ---
-// 1. Všechna vozidla
+// --- GLOBÁLNÍ PAMĚŤ PRO IDPK ---
+const idpkHistory = new Map();
+
+// --- MATEMATIKA PRO VÝPOČET SMĚRU ---
+function calculateBearing(lat1, lon1, lat2, lon2) {
+    const toRad = deg => (deg * Math.PI) / 180;
+    const toDeg = rad => (rad * 180) / Math.PI;
+    const dLon = toRad(lon2 - lon1);
+    const y = Math.sin(dLon) * Math.cos(toRad(lat2));
+    const x = Math.cos(toRad(lat1)) * Math.sin(toRad(lat2)) -
+              Math.sin(toRad(lat1)) * Math.cos(toRad(lat2)) * Math.cos(dLon);
+    return (toDeg(Math.atan2(y, x)) + 360) % 360;
+}
+
+// --- 1. Všechna vozidla IDPK (obohacená o azimut) ---
 app.get('/idpk', async (req, res) => {
     try {
         const response = await fetch('https://pvvd.idpk.cz/Ajax/GetPoints');
-        const data = await response.json();
-        res.json(data);
+        const rawData = await response.json();
+        
+        // Pojistka formátu (IDPK posílá pole)
+        const vehicles = Array.isArray(rawData) ? rawData : (rawData.data || rawData.points || []);
+
+        const enrichedVehicles = vehicles.map(v => {
+            let heading = null;
+            
+            if (idpkHistory.has(v.id)) {
+                const prev = idpkHistory.get(v.id);
+                // Pokud se autobus pohnul
+                if (prev.lat !== v.lat || prev.lng !== v.lng) {
+                    heading = calculateBearing(prev.lat, prev.lng, v.lat, v.lng);
+                    prev.heading = heading; // Uložíme pro případ, že příště bude stát na červenou
+                } else {
+                    heading = prev.heading; // Stojí, použijeme starý směr
+                }
+                prev.lat = v.lat;
+                prev.lng = v.lng;
+            } else {
+                // První záchyt vozidla
+                idpkHistory.set(v.id, { lat: v.lat, lng: v.lng, heading: null });
+            }
+            
+            // Obohatíme původní data o náš vypočítaný "bearing"
+            return { ...v, bearing: heading };
+        });
+
+        res.json(enrichedVehicles);
     } catch (e) {
+        console.error("IDPK Bridge Error:", e);
         res.status(500).send('Error');
     }
 });
 
-// 2. Detail vozu
+// --- 2. Detail vozu IDPK ---
 app.get('/idpk/detail', async (req, res) => {
     try {
         const id = req.query.id;
@@ -936,7 +978,7 @@ app.get('/idpk/detail', async (req, res) => {
     }
 });
 
-// 3. Jízdní řád
+// --- 3. Jízdní řád IDPK ---
 app.get('/idpk/timetable', async (req, res) => {
     try {
         const id = req.query.id;
