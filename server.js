@@ -509,82 +509,75 @@ function calculateBearing(lat1, lon1, lat2, lon2) {
     return (toDeg(bearing) + 360) % 360;
 }
 
-// Globální paměť pro uchování poloh VDV vozidel
+// --- GLOBÁLNÍ PAMĚŤ A CACHE PRO VDV ---
 let vdvVehicleStates = {};
+let vdvCache = { data: [], timestamp: 0 }; // [NOVÉ] Ochrana paměti
 
-// --- 10. ENDPOINT PRO VDV (Hlavní data) ---
+// --- 10. ENDPOINT PRO VDV (Vozidla) ---
 app.get('/vdv', async (req, res) => {
     try {
-        const targetUrl = `https://mapavdv.kr-vysocina.cz/Ajax/GetPoints?t=${Date.now()}`;
+        const now = Date.now();
+
+        // CACHE: Pokud se někdo ptal před méně než 10 vteřinami, vrátíme mu hotová data ze zálohy!
+        if (now - vdvCache.timestamp < 10000 && vdvCache.data.length > 0) {
+            return res.json(vdvCache.data);
+        }
+
+        const targetUrl = `https://mapavdv.kr-vysocina.cz/Ajax/GetPoints?t=${now}`;
         const response = await fetch(targetUrl);
         if (!response.ok) throw new Error("VDV API selhalo");
         
         const data = await response.json();
         const currentIds = new Set();
-        const now = Date.now(); // [NOVÉ] Aktuální čas pro stopky
-        
-        const activeData = []; // [NOVÉ] Pole, kam pustíme jen živé vozy
+        const activeData = []; 
 
         data.forEach(trip => {
             currentIds.add(trip.id);
-            let shouldKeep = true; // [NOVÉ] Flag pro propuštění na mapu
+            let shouldKeep = true;
 
-            // Pokud vidíme vozidlo poprvé, uložíme ho s nullovým směrem
             if (!vdvVehicleStates[trip.id]) {
                 vdvVehicleStates[trip.id] = {
                     lat: trip.lat,
                     lng: trip.lng,
                     heading: null,
                     staticCount: 0,
-                    lastMovedTime: now // [NOVÉ] Začínáme měřit čas
+                    lastMovedTime: now
                 };
                 trip.heading = null;
             } else {
                 const state = vdvVehicleStates[trip.id];
-
-                // Pokud jsou souřadnice úplně stejné
                 if (state.lat === trip.lat && state.lng === trip.lng) {
                     state.staticCount++;
-                    // Pokud vozidlo stojí déle než 30 iterací (cca 5 min), vymažeme mu směr
-                    if (state.staticCount > 30) {
-                        state.heading = null;
-                    }
+                    if (state.staticCount > 30) state.heading = null;
 
-                    // [NOVÉ] Stopky: kontrola skutečného času stání (10 minut)
-                    if (!state.lastMovedTime) state.lastMovedTime = now; // Pojistka pro již uložené vozy
-                    
-                    const timeStanding = now - state.lastMovedTime;
-                    if (timeStanding > 10 * 60 * 1000) { // 10 minut v milisekundách
-                        shouldKeep = false; // Zákaz vstupu na mapu!
+                    if (!state.lastMovedTime) state.lastMovedTime = now;
+                    if (now - state.lastMovedTime > 10 * 60 * 1000) {
+                        shouldKeep = false; 
                     }
-
                 } else {
-                    // Vozidlo se pohnulo -> Vypočítáme nový směr a vynulujeme čítače
                     state.heading = calculateBearing(state.lat, state.lng, trip.lat, trip.lng);
                     state.lat = trip.lat;
                     state.lng = trip.lng;
                     state.staticCount = 0;
-                    state.lastMovedTime = now; // [NOVÉ] Resetujeme stopky
+                    state.lastMovedTime = now; 
                 }
-                
-                // Přilepíme spočítaný směr přímo do JSONu
                 trip.heading = state.heading;
             }
 
-            // [NOVÉ] Pokud vůz nestojí moc dlouho, pošleme ho prohlížeči
             if (shouldKeep) {
                 activeData.push(trip);
             }
         });
 
-        // Garbage Collector: Vymažeme z paměti vozidla, která už z VDV API zmizela
+        // Garbage Collector
         for (const id in vdvVehicleStates) {
-            if (!currentIds.has(Number(id))) {
-                delete vdvVehicleStates[id];
-            }
+            if (!currentIds.has(Number(id))) delete vdvVehicleStates[id];
         }
 
-        // [Změna] Odešleme vyčištěné pole, nikoliv celá surová data
+        // [NOVÉ] Uložíme výsledek do Cache pro případné další uživatele
+        vdvCache.data = activeData;
+        vdvCache.timestamp = now;
+
         res.json(activeData);
     } catch (err) {
         console.error("Chyba VDV GetPoints:", err.message);
@@ -856,19 +849,25 @@ app.get('/duk/detail', async (req, res) => {
 });
 
 // --- 21. IDPK Můstek ---
-// --- GLOBÁLNÍ PAMĚŤ PRO IDPK ---
+// --- GLOBÁLNÍ PAMĚŤ A CACHE PRO IDPK ---
 const idpkHistory = new Map();
+let idpkCache = { data: [], timestamp: 0 }; // [NOVÉ] Ochrana paměti
 
-// --- 1. Všechna vozidla IDPK (obohacená o azimut) ---
+// --- 1. Poloha vozů IDPK ---
 app.get('/idpk', async (req, res) => {
     try {
+        const now = Date.now();
+
+        // CACHE: Pokud se někdo ptal před méně než 10 vteřinami, vrátíme mu hotová data ze zálohy
+        if (now - idpkCache.timestamp < 10000 && idpkCache.data.length > 0) {
+            return res.json(idpkCache.data);
+        }
+
         const response = await fetch('https://pvvd.idpk.cz/Ajax/GetPoints');
         const rawData = await response.json();
         
         const vehicles = Array.isArray(rawData) ? rawData : (rawData.data || rawData.points || []);
-        const now = Date.now();
         const currentIds = new Set();
-        
         const activeVehicles = [];
 
         vehicles.forEach(v => {
@@ -878,25 +877,19 @@ app.get('/idpk', async (req, res) => {
             
             if (idpkHistory.has(v.id)) {
                 const prev = idpkHistory.get(v.id);
-                // Pokud se autobus pohnul
                 if (prev.lat !== v.lat || prev.lng !== v.lng) {
-                    // calculateBearing se volá z tvé existující globální funkce!
                     heading = calculateBearing(prev.lat, prev.lng, v.lat, v.lng);
                     prev.heading = heading; 
                     prev.lat = v.lat;
                     prev.lng = v.lng;
-                    prev.lastMovedTime = now; // Resetujeme stopky
+                    prev.lastMovedTime = now; 
                 } else {
-                    // Stojí na místě
                     heading = prev.heading; 
-                    const timeStanding = now - prev.lastMovedTime;
-                    
-                    if (timeStanding > 10 * 60 * 1000) {
-                        shouldKeep = false; // Stojí déle než 10 minut, do mapy nepošleme!
+                    if (now - prev.lastMovedTime > 10 * 60 * 1000) {
+                        shouldKeep = false; 
                     }
                 }
             } else {
-                // První záchyt vozidla
                 idpkHistory.set(v.id, { lat: v.lat, lng: v.lng, heading: null, lastMovedTime: now });
             }
             
@@ -905,12 +898,14 @@ app.get('/idpk', async (req, res) => {
             }
         });
 
-        // --- ČIŠTĚNÍ PAMĚTI SERVERU (Garbage Collector) ---
+        // Garbage Collector
         for (const key of idpkHistory.keys()) {
-            if (!currentIds.has(key)) {
-                idpkHistory.delete(key);
-            }
+            if (!currentIds.has(key)) idpkHistory.delete(key);
         }
+
+        // [NOVÉ] Uložíme výsledek do Cache
+        idpkCache.data = activeVehicles;
+        idpkCache.timestamp = now;
 
         res.json(activeVehicles);
     } catch (e) {
