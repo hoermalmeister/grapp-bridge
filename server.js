@@ -521,9 +521,13 @@ app.get('/vdv', async (req, res) => {
         
         const data = await response.json();
         const currentIds = new Set();
+        const now = Date.now(); // [NOVÉ] Aktuální čas pro stopky
+        
+        const activeData = []; // [NOVÉ] Pole, kam pustíme jen živé vozy
 
         data.forEach(trip => {
             currentIds.add(trip.id);
+            let shouldKeep = true; // [NOVÉ] Flag pro propuštění na mapu
 
             // Pokud vidíme vozidlo poprvé, uložíme ho s nullovým směrem
             if (!vdvVehicleStates[trip.id]) {
@@ -531,7 +535,8 @@ app.get('/vdv', async (req, res) => {
                     lat: trip.lat,
                     lng: trip.lng,
                     heading: null,
-                    staticCount: 0
+                    staticCount: 0,
+                    lastMovedTime: now // [NOVÉ] Začínáme měřit čas
                 };
                 trip.heading = null;
             } else {
@@ -540,31 +545,47 @@ app.get('/vdv', async (req, res) => {
                 // Pokud jsou souřadnice úplně stejné
                 if (state.lat === trip.lat && state.lng === trip.lng) {
                     state.staticCount++;
-                    // Pokud vozidlo stojí déle než 30 iterací (cca 5 min), vymažeme mu směr (vrátí se na kroužek)
+                    // Pokud vozidlo stojí déle než 30 iterací (cca 5 min), vymažeme mu směr
                     if (state.staticCount > 30) {
                         state.heading = null;
                     }
+
+                    // [NOVÉ] Stopky: kontrola skutečného času stání (10 minut)
+                    if (!state.lastMovedTime) state.lastMovedTime = now; // Pojistka pro již uložené vozy
+                    
+                    const timeStanding = now - state.lastMovedTime;
+                    if (timeStanding > 10 * 60 * 1000) { // 10 minut v milisekundách
+                        shouldKeep = false; // Zákaz vstupu na mapu!
+                    }
+
                 } else {
-                    // Vozidlo se pohnulo -> Vypočítáme nový směr a vynulujeme čítač stání
+                    // Vozidlo se pohnulo -> Vypočítáme nový směr a vynulujeme čítače
                     state.heading = calculateBearing(state.lat, state.lng, trip.lat, trip.lng);
                     state.lat = trip.lat;
                     state.lng = trip.lng;
                     state.staticCount = 0;
+                    state.lastMovedTime = now; // [NOVÉ] Resetujeme stopky
                 }
                 
-                // Přilepíme spočítaný směr přímo do odesílaného JSONu
+                // Přilepíme spočítaný směr přímo do JSONu
                 trip.heading = state.heading;
+            }
+
+            // [NOVÉ] Pokud vůz nestojí moc dlouho, pošleme ho prohlížeči
+            if (shouldKeep) {
+                activeData.push(trip);
             }
         });
 
-        // Garbage Collector: Vymažeme z paměti vozidla, která už z VDV API zmizela (zabráníme přetečení paměti)
+        // Garbage Collector: Vymažeme z paměti vozidla, která už z VDV API zmizela
         for (const id in vdvVehicleStates) {
             if (!currentIds.has(Number(id))) {
                 delete vdvVehicleStates[id];
             }
         }
 
-        res.json(data);
+        // [Změna] Odešleme vyčištěné pole, nikoliv celá surová data
+        res.json(activeData);
     } catch (err) {
         console.error("Chyba VDV GetPoints:", err.message);
         res.status(500).send("Chyba při stahování VDV dat");
@@ -844,33 +865,54 @@ app.get('/idpk', async (req, res) => {
         const response = await fetch('https://pvvd.idpk.cz/Ajax/GetPoints');
         const rawData = await response.json();
         
-        // Pojistka formátu (IDPK posílá pole)
         const vehicles = Array.isArray(rawData) ? rawData : (rawData.data || rawData.points || []);
+        const now = Date.now();
+        const currentIds = new Set();
+        
+        const activeVehicles = [];
 
-        const enrichedVehicles = vehicles.map(v => {
+        vehicles.forEach(v => {
+            currentIds.add(v.id);
             let heading = null;
+            let shouldKeep = true;
             
             if (idpkHistory.has(v.id)) {
                 const prev = idpkHistory.get(v.id);
                 // Pokud se autobus pohnul
                 if (prev.lat !== v.lat || prev.lng !== v.lng) {
+                    // calculateBearing se volá z tvé existující globální funkce!
                     heading = calculateBearing(prev.lat, prev.lng, v.lat, v.lng);
-                    prev.heading = heading; // Uložíme pro případ, že příště bude stát na červenou
+                    prev.heading = heading; 
+                    prev.lat = v.lat;
+                    prev.lng = v.lng;
+                    prev.lastMovedTime = now; // Resetujeme stopky
                 } else {
-                    heading = prev.heading; // Stojí, použijeme starý směr
+                    // Stojí na místě
+                    heading = prev.heading; 
+                    const timeStanding = now - prev.lastMovedTime;
+                    
+                    if (timeStanding > 10 * 60 * 1000) {
+                        shouldKeep = false; // Stojí déle než 10 minut, do mapy nepošleme!
+                    }
                 }
-                prev.lat = v.lat;
-                prev.lng = v.lng;
             } else {
                 // První záchyt vozidla
-                idpkHistory.set(v.id, { lat: v.lat, lng: v.lng, heading: null });
+                idpkHistory.set(v.id, { lat: v.lat, lng: v.lng, heading: null, lastMovedTime: now });
             }
             
-            // Obohatíme původní data o náš vypočítaný "bearing"
-            return { ...v, bearing: heading };
+            if (shouldKeep) {
+                activeVehicles.push({ ...v, bearing: heading });
+            }
         });
 
-        res.json(enrichedVehicles);
+        // --- ČIŠTĚNÍ PAMĚTI SERVERU (Garbage Collector) ---
+        for (const key of idpkHistory.keys()) {
+            if (!currentIds.has(key)) {
+                idpkHistory.delete(key);
+            }
+        }
+
+        res.json(activeVehicles);
     } catch (e) {
         console.error("IDPK Bridge Error:", e);
         res.status(500).send('Error');
